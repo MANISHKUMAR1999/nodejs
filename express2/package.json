@@ -1,0 +1,29 @@
+{
+  "name": "express2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "asynckit": "^0.4.0",
+    "combined-stream": "^1.0.8",
+    "data-uri-to-buffer": "^4.0.1",
+    "delayed-stream": "^1.0.0",
+    "express": "^4.21.1",
+    "fetch-blob": "^3.2.0",
+    "form-data": "^4.0.1",
+    "formdata-polyfill": "^4.0.10",
+    "mime-db": "^1.52.0",
+    "mime-types": "^2.1.35",
+    "node-domexception": "^1.0.0",
+    "node-fetch": "^3.3.2",
+    "undici-types": "^6.19.8",
+    "web-streams-polyfill": "^3.3.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
