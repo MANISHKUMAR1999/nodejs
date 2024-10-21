@@ -31,6 +31,10 @@ app.patch('/blogs/:id',(req,res)=>{
     
 })
 app.delete('/blogs/:id',(req,res)=>{
+    const {id} = req.params;
+    const updatedBlogs = blogs.filter((blog)=>blog.id != id)
+    blogs = [...updatedBlogs]
+    return res.json({"message":"blogs deleted successfully",updatedBlogs})
     
 })
 
