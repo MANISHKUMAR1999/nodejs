@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useEffect} from 'react'
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 //import { json } from 'express'
@@ -10,6 +10,19 @@ function App() {
     password:"",
     email:""
   })
+
+  const [blogs,setBlogs] = useState([]);
+
+
+  async function fetchBlogs(){
+    const response = await fetch('http://localhost:3000/api/v1/blogs');
+    const blogData = await response.json()
+    setBlogs(blogData.allBlogs)
+  }
+
+  useEffect(()=>{
+   fetchBlogs()
+  },[])
 async function handleSubmit() {
   const response = await fetch('http://localhost:3000/users',{
     method:'POST',
@@ -35,6 +48,15 @@ async function handleSubmit() {
     <input type="password" name="password" id="" onChange={(e)=>setuserSingUpData((prev)=>({...prev,password:e.target.value}))} placeholder='password' />
     <br></br>
     <button type="submit" onClick={handleSubmit}>Submit</button>
+    {
+      blogs.map(blog=>(
+        <ul key={blog.id}>
+          <li>{blog.title}</li>
+          <li>{blog.description}</li>
+        </ul>
+      ))
+     
+    }
     </div>
    
     </>
