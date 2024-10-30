@@ -1,21 +1,32 @@
 const Blog = require("../models/blogSchema")
+const User = require("../models/userSchema")
 
 async function createBlog(req,res){
-    const {title,description,draft} = req.body
-   try{
+    const {title,description,draft,creator} = req.body
     console.log(req.body)
+   try{
+    //console.log(req.body)
    
   
-    console.log(description)
+    //console.log(description)
     if(!title){
         return res.status(400).json({"message":"please fill title field"})
     }
     if(!description){
         return res.status(400).json({"message":"please fill description field"})
     }
+
+    const findUser = await User.findById(creator)
+
+console.log(findUser)
+if(!findUser){
+    return res.status(500).json({"message":"not authorised user"})
+}
     const blog = await Blog.create({
-        title,description,draft
-      })
+         title,description,draft,creator
+       })
+
+       await User.findByIdAndUpdate(creator,{$push:{blogs:blog._id}})
 
     return res.status(200).json({"success":true,blog})
    }
@@ -27,7 +38,12 @@ async function createBlog(req,res){
 async function getAllBlog(req,res){
     try{
         const {id} = req.params
-        const allBlogs = await Blog.find({draft:true})
+      //  const allBlogs = await Blog.find({draft:true}).populate("creator")
+      const allBlogs = await Blog.find({draft:true}).populate({
+        path:"creator",
+       // select:"name"
+       select:"-password"  // remove password field from creator object
+      })
         if(allBlogs.length == 0){
             return res.status(200).json({"success":"true","message":"No Blogs found"})
         }

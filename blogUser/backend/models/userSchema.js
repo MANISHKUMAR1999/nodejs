@@ -7,7 +7,13 @@ const userSchema = new mongoose.Schema({
         unique:true,
         required:'Email is required'
     },
-    password:String
+    password:String,
+    blogs:[
+    {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Blog"
+    }
+]
 })
 
 const User = mongoose.model('User',userSchema)
