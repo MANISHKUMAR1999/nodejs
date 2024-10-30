@@ -1,4 +1,5 @@
 const User = require('../models/userSchema')
+const bcrypt = require('bcrypt')
 
 async function createUser(req,res){
     const {name,email,password} = req.body
@@ -18,10 +19,14 @@ const checkForExistingUser = await User.findOne({email})
 if(checkForExistingUser){
     return res.status(400).json({"sucess":"false","message":"Already registered with the email","error":"Email is already present"})
 }
+
+const hasedPassword = await bcrypt.hash(password,10)
+console.log(hasedPassword)
+
   const newUser = await User.create({
     name:name,
     email:email,
-    password:password
+    password:hasedPassword
   })
   return res.status(200).json({"sucess":"true","message":"user created successfully",newUser})
 }
@@ -30,6 +35,43 @@ catch(err){
 }
 }
 
+
+async function login(req,res) {
+  const {name,email,password} = req.body
+  try{
+   
+    if(!email){
+      return res.status(400).json({"message":"please fill the email","success":"false"})
+    }
+    if(!password){
+      return res.status(400).json({"message":"please fill the password","success":"false"})
+    }
+    //users.push({...req.body,id:users.length+1})
+  
+  const checkForExistingUser = await User.findOne({email})
+  if(!checkForExistingUser){
+      return res.status(400).json({"sucess":"false","message":"User not exist"})
+  }
+
+  const checkForPassword = await bcrypt.compare(password,checkForExistingUser.password)
+  if(!checkForPassword){
+    return res.status(400).json({"sucess":"false","message":"In Correct Password"})
+  }
+//   if(!(checkForExistingUser.password == password)){
+//     return res.status(400).json({"sucess":"false","message":"In Correct Password"})
+// }
+
+
+  
+
+  
+  
+    return res.status(200).json({"sucess":"true","message":"logged in successfully",checkForExistingUser})
+  }
+  catch(err){
+      return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})
+  }
+}
 
 async function getAllUser(req,res){
   try{
@@ -113,4 +155,4 @@ async function deleteUser(req,res){
 
 
 
-module.exports = {createUser, getAllUser,getUserById,updateUser,deleteUser}
+module.exports = {createUser, getAllUser,getUserById,updateUser,deleteUser,login}
