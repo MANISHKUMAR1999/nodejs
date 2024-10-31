@@ -1,7 +1,11 @@
 const User = require('../models/userSchema')
 const bcrypt = require('bcrypt')
+const { generateJWT, verifyJWT } = require('../utils/generateToken')
+const { verify } = require('jsonwebtoken')
+
 
 async function createUser(req,res){
+  
     const {name,email,password} = req.body
 try{
   if(!name ){
@@ -28,7 +32,16 @@ console.log(hasedPassword)
     email:email,
     password:hasedPassword
   })
-  return res.status(200).json({"sucess":"true","message":"user created successfully",newUser})
+  const token = await generateJWT({
+    "email":newUser.email,
+    "id":newUser._id
+  })
+  return res.status(200).json({"sucess":"true","message":"user created successfully","User":{
+    "name":newUser.name,
+    "email":newUser.email,
+    "blogs":newUser.blogs,
+    token
+  }})
 }
 catch(err){
     return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})
@@ -66,7 +79,7 @@ async function login(req,res) {
 
   
   
-    return res.status(200).json({"sucess":"true","message":"logged in successfully",checkForExistingUser})
+    return res.status(200).json({"sucess":"true","message":"logged in successfully","User":checkForExistingUser})
   }
   catch(err){
       return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})

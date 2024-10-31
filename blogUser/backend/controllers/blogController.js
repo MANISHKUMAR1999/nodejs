@@ -1,7 +1,14 @@
 const Blog = require("../models/blogSchema")
-const User = require("../models/userSchema")
+const User = require("../models/userSchema");
+const { verifyJWT, decodedJWT } = require("../utils/generateToken");
 
 async function createBlog(req,res){
+    console.log(await decodedJWT(req.body.token))
+    let isValid = await verifyJWT(req.body.token);
+    
+  if(!isValid){
+    return res.status(200).json({"message":"InValid token","success":"false"})
+  }
     const {title,description,draft,creator} = req.body
     console.log(req.body)
    try{
