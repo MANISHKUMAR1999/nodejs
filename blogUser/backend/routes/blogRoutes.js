@@ -5,6 +5,6 @@ const route = express.Router();
 route.post("/blogs",verifyUser,createBlog);
 route.get("/blogs",getAllBlog);
 route.get("/blogs/:id", getBlogById);
-route.patch("/blogs/:id",updateBlog);
+route.patch("/blogs/:id",verifyUser,updateBlog);
 route.delete("/blogs/:id",deleteBlog);
 module.exports = route 

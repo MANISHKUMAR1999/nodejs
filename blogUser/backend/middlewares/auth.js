@@ -11,6 +11,7 @@ const verifyUser = async(req,res,next)=>{
         })
     }
     try{
+        console.log(token,"token from auth")
  let user = await verifyJWT(token);
  if(!user){
     return res.status(400).json({
