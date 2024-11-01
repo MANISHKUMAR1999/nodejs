@@ -7,8 +7,10 @@ return token
 
 async function verifyJWT(token){
     try{
-        const isValid = await jwt.verify(token,"jwtbhutkhatarnak")
-        return true
+        const data = await jwt.verify(token,"jwtbhutkhatarnak")
+        console.log(data,"data")
+
+        return data
     }
     catch(error){
 return false
