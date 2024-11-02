@@ -6,5 +6,5 @@ route.post("/blogs",verifyUser,createBlog);
 route.get("/blogs",getAllBlog);
 route.get("/blogs/:id", getBlogById);
 route.patch("/blogs/:id",verifyUser,updateBlog);
-route.delete("/blogs/:id",deleteBlog);
+route.delete("/blogs/:id",verifyUser,deleteBlog);
 module.exports = route 

@@ -89,6 +89,11 @@ async function updateBlog(req,res){
      console.log("user from update blog",user)
      //console.log(user.blogs.find(blogId=> blogId===id))
     const blog = await Blog.findById(id)
+    if (!blog) {
+        return res.status(500).json({
+          message: "Blog is not found",
+        });
+      }
     console.log("blog",blog)
 
      if(!(creator == blog.creator)){
@@ -111,6 +116,30 @@ async function updateBlog(req,res){
 }
 
 async function deleteBlog(req,res){
+
+    try{
+        const creator = req.user;
+        const {id} = req.params;
+        const blog = await Blog.findById(id)
+        if (!blog) {
+            return res.status(500).json({
+              message: "Blog is not found",
+            });
+          }
+      
+          if (creator != blog.creator) {
+            return res.status(500).json({
+              message: "You are not authorized for this action",
+            });
+          }
+           await Blog.findByIdAndDelete(id);
+
+        await User.findByIdAndUpdate(creator,{$pull:{blogs:id}})
+        return res.status(200).json({"success":true,"message":"Blog Deleted Successfully"})
+    }
+    catch(error){
+        return res.status(500).json({"error":error.message,"message":"Delete blog failed"})
+    }
 
 }
 
