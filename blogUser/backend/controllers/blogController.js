@@ -53,7 +53,10 @@ async function getAllBlog(req,res){
         path:"creator",
        // select:"name"
        select:"-password"  // remove password field from creator object
-      })
+      }).populate({
+        path: "likes",
+        select: "email name",
+      });
       console.log("all blogs",allBlogs)
         if(allBlogs.length == 0){
             return res.status(200).json({"success":"true","message":"No Blogs found"})
@@ -143,4 +146,36 @@ async function deleteBlog(req,res){
 
 }
 
-module.exports = {createBlog,getAllBlog,getBlogById,updateBlog,deleteBlog}
+
+async function likeBlog(req,res){
+
+    try{
+        const creator = req.user;
+        const {id} = req.params;
+        const blog = await Blog.findById(id)
+        if (!blog) {
+            return res.status(500).json({
+              message: "Blog is not found",
+            });
+          }
+          console.log(blog)
+          console.log(creator)
+      
+         if(!blog.likes.includes(creator)){
+            await Blog.findByIdAndUpdate(id,{$push:{likes:creator}})
+            return res.status(200).json({"success":true,"message":"Blog Likes Successfully"})
+         }
+         else{
+            await Blog.findByIdAndUpdate(id, { $pull: { likes: creator } });
+            return res.status(200).json({"success":true,"message":"Blog disLikes Successfully"})
+
+         }
+      //  return res.status(200).json({"success":true,"message":"Blog Deleted Successfully"})
+    }
+    catch(error){
+        return res.status(500).json({"error":error.message,"message":"Delete blog failed"})
+    }
+
+}
+
+module.exports = {createBlog,getAllBlog,getBlogById,updateBlog,deleteBlog,likeBlog}
