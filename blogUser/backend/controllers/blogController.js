@@ -1,4 +1,5 @@
-const Blog = require("../models/blogSchema")
+const Blog = require("../models/blogSchema");
+const Comment = require("../models/commentSchema");
 const User = require("../models/userSchema");
 const { verifyJWT, decodedJWT } = require("../utils/generateToken");
 
@@ -71,7 +72,13 @@ async function getAllBlog(req,res){
 async function getBlogById(req,res){
     try{
         const {id} = req.params
-        const blog = await Blog.findById(id)
+        const blog = await Blog.findById(id).populate({
+          path:'comments',
+          populate:{
+            path:'user',
+            select:'-password'
+          }
+        })
        
         return res.status(200).json({"success":"true","message":"blog fetched successfully",blog})
     }
@@ -178,4 +185,77 @@ async function likeBlog(req,res){
 
 }
 
-module.exports = {createBlog,getAllBlog,getBlogById,updateBlog,deleteBlog,likeBlog}
+
+async function addComment(req,res){
+
+  try{
+      const creator = req.user;
+      const {id} = req.params;
+      const {comment} = req.body
+      console.log("req body",comment)
+
+      if(!comment){
+        return res.status(500).json({
+          message: "please enter the comment",
+        });
+      }
+      const blog = await Blog.findById(id)
+      if (!blog) {
+          return res.status(500).json({
+            message: "Blog is not found",
+          });
+        }
+        
+   // creating the comment
+        const newComment = await Comment.create({comment,blog:id,user:creator});
+        console.log("new commment",newComment)
+
+        // adding the comment 
+      await Blog.findByIdAndUpdate(id,{$push:{comments:newComment._id}})
+      
+
+     return res.status(200).json({"success":true,"message":"Comment added Successfully"})
+  }
+  catch(error){
+      return res.status(500).json({"error":error.message})
+  }
+
+}
+
+
+async function deleteComment(req,res){
+
+  try{
+    
+      const userId = req.user;
+      const {id} = req.params;
+      console.log(id)
+    
+      
+
+      const comment = await Comment.findById(id).populate({path:'blog',select:'creator'})
+      console.log(comment,"comment",comment.user !== userId,comment.blog.creator,comment.user)
+      if (!comment) {
+          return res.status(500).json({
+            message: "comment is not found",
+          });
+        }
+      //  console.log(userId,)
+   // check the comment user id
+   if (comment.user != userId && comment.blog.creator != userId) {
+    return res.status(500).json({
+      message: "You are not authorized",
+    });
+  }
+      await Blog.findByIdAndUpdate(comment.blog_.id,{$pull:{comments:id}})
+      await Comment.findByIdAndDelete(id)
+
+     return res.status(200).json({"success":true,"message":"Comment deleted Successfully"})
+  }
+  catch(error){
+      return res.status(500).json({"error":error.message})
+  }
+
+}
+
+module.exports = {createBlog,getAllBlog,getBlogById,updateBlog,deleteBlog,likeBlog,addComment,deleteComment}
