@@ -15,7 +15,11 @@ const commentSchema = new mongoose.Schema({
             type:mongoose.Schema.Types.ObjectId, //connecting the comment model to user model
             ref:"User",
             required:true
-        }, 
+        },
+        likes:[{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        }],
     
 })
 
