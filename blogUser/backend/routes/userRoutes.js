@@ -6,9 +6,9 @@ const {createUser,getAllUser,getUserById,updateUser,deleteUser, login} = require
 const routes = express.Router();
 
 
-routes.post('/users',createUser)
+routes.post('/signup',createUser)
 
-routes.post('/login',login)
+routes.post('/signin',login)
 
 routes.get('/users',getAllUser)
 

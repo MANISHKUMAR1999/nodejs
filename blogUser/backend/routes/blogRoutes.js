@@ -2,12 +2,13 @@ const express = require("express");
 const { createBlog, getAllBlog, getBlogById, updateBlog, deleteBlog, likeBlog } = require("../controllers/blogController");
 const verifyUser = require("../middlewares/auth");
 const { addComment, deleteComment, editComment, likeComment } = require("../controllers/commentController");
+const upload = require("../utils/multer");
 const route = express.Router();
 
 //blogs
-route.post("/blogs",verifyUser,createBlog);
+route.post("/blogs",verifyUser,upload.single("image"),createBlog);
 route.get("/blogs",getAllBlog);
-route.get("/blogs/:id", getBlogById);
+route.get("/blogs/:blogId", getBlogById);
 route.patch("/blogs/:id",verifyUser,updateBlog);
 route.delete("/blogs/:id",verifyUser,deleteBlog);
 

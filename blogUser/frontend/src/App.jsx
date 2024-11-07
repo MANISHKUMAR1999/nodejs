@@ -1,27 +1,27 @@
-//import reactLogo from './assets/react.svg'
-//import viteLogo from '/vite.svg'
-//import { json } from 'express'
-import { Route, Routes } from 'react-router-dom'
-import './App.css'
-import Blogs from './components/blogs'
-import SignupPage from './pages/signupPage'
-import Signin from './pages/Signin'
-import CreateBlog from './components/CreateBlog'
+import { Route, Routes } from "react-router-dom";
 
-
+import AuthForm from "./pages/AuthForm";
+import { Navbar } from "./components/Navbar";
+import { Home } from "./components/Home";
+import { AddBlog } from "./pages/AddBlog";
+import { BlogPage } from "./pages/BlogPage";
 
 function App() {
-
   return (
-  <Routes>
-    <Route path='/' element={<Blogs/>}></Route>
-    <Route path='/signup' element={<SignupPage/>}></Route>
-    <Route path='/signin' element={<Signin/>}></Route>
-  
-    <Route path='/create-blog' element={<CreateBlog/>}></Route>
-    <Route path='*' element={<h1>Not Found</h1>}></Route>
-  </Routes>
-  )
+    <div className="bg-slate-200 w-screen h-screen">
+      <Routes>
+        <Route path="/" element={<Navbar/>}>
+        <Route path="/" element={<Home/>}></Route>
+      
+       
+          <Route path="/signin" element={<AuthForm type={"signin"} />}></Route>
+          <Route path="/signup" element={<AuthForm type={"signup"} />}></Route>
+          <Route path="/add-blog" element={<AddBlog/>}></Route>
+          <Route path="/blog/:id" element={<BlogPage/>}></Route>
+          </Route>
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;

@@ -1,13 +1,16 @@
 
 const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
+dotenv.config()
+
 async function generateJWT(payload){
-const token = await jwt.sign(payload,"jwtbhutkhatarnak",{expiresIn:"1hr"})
+const token = await jwt.sign(payload,process.env.JWT_API_SECRET,{expiresIn:"1hr"})
 return token
 }
 
 async function verifyJWT(token){
     try{
-        const data = await jwt.verify(token,"jwtbhutkhatarnak")
+        const data = await jwt.verify(token,process.env.JWT_API_SECRET)
         console.log(data,"data")
 
         return data

@@ -36,12 +36,12 @@ console.log(hasedPassword)
     "email":newUser.email,
     "id":newUser._id
   })
-  return res.status(200).json({"sucess":"true","message":"user created successfully","User":{
+  return res.status(200).json({"sucess":"true","message":"user created successfully","user":{
     "name":newUser.name,
     "email":newUser.email,
     "blogs":newUser.blogs,
-    token
-  }})
+   
+  }, token})
 }
 catch(err){
     return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})
@@ -73,13 +73,17 @@ async function login(req,res) {
 //   if(!(checkForExistingUser.password == password)){
 //     return res.status(400).json({"sucess":"false","message":"In Correct Password"})
 // }
+let token = await generateJWT({
+  email: checkForExistingUser.email,
+  id: checkForExistingUser._id,
+});
 
 
   
 
   
   
-    return res.status(200).json({"sucess":"true","message":"logged in successfully","User":checkForExistingUser})
+    return res.status(200).json({"sucess":"true","message":"logged in successfully","user":{name:checkForExistingUser.name,email:checkForExistingUser.email,id:checkForExistingUser._id},token})
   }
   catch(err){
       return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})

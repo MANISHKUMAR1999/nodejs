@@ -2,6 +2,11 @@ const Blog = require("../models/blogSchema");
 const Comment = require("../models/commentSchema");
 const User = require("../models/userSchema");
 const { verifyJWT, decodedJWT } = require("../utils/generateToken");
+const {uploadImageToCloudinary,deleteImagefromCloudinary}= require("../utils/uploadImage");
+const fs = require('fs')
+const uniqid  = require('uniqid')
+const ShortUniqueId = require("short-unique-id");
+const { randomUUID } = new ShortUniqueId({ length: 10 });
 
 async function createBlog(req,res){
    // console.log(await decodedJWT(req.body.token))
@@ -14,7 +19,8 @@ async function createBlog(req,res){
   // added the creatorfrom user object
   const creator = req.user;
     const {title,description,draft} = req.body
-    console.log(req.body)
+    const image=req.file
+    console.log(image)
    try{
     //console.log(req.body)
    
@@ -33,8 +39,15 @@ console.log(findUser)
 if(!findUser){
     return res.status(500).json({"message":"not authorised user"})
 }
+
+// cloudinary code
+  const {secure_url,public_id} = await uploadImageToCloudinary(image.path) // secure_url,public_id
+fs.unlinkSync(image.path) // deleting the image from the folder
+//const blogId = title.toLowerCase().replaceAll(" ")
+//const blogId = title.toLowerCase().replace(/ +/g, '-')
+const blogId = title.toLowerCase().split(" ").join("-") + "-" + randomUUID();
     const blog = await Blog.create({
-         title,description,draft,creator
+         title,description,draft,creator,image:secure_url,imageId:public_id,blogId
        })
 
        await User.findByIdAndUpdate(creator,{$push:{blogs:blog._id}})
@@ -71,13 +84,16 @@ async function getAllBlog(req,res){
 
 async function getBlogById(req,res){
     try{
-        const {id} = req.params
-        const blog = await Blog.findById(id).populate({
+        const {blogId} = req.params
+        const blog = await Blog.findOne({blogId}).populate({
           path:'comments',
           populate:{
             path:'user',
             select:'-password'
           }
+        }).populate({
+          path:'creator',
+          select:"name email"
         })
        
         return res.status(200).json({"success":"true","message":"blog fetched successfully",blog})
@@ -142,6 +158,7 @@ async function deleteBlog(req,res){
               message: "You are not authorized for this action",
             });
           }
+          await deleteImagefromCloudinary(blog.imageId)
            await Blog.findByIdAndDelete(id);
 
         await User.findByIdAndUpdate(creator,{$pull:{blogs:id}})
