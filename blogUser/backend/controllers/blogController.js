@@ -95,6 +95,10 @@ async function getBlogById(req,res){
           path:'creator',
           select:"name email"
         })
+
+        if(!blog){
+          res.status(404).json({"success":"true","message":"blog not found"})
+        }
        
         return res.status(200).json({"success":"true","message":"blog fetched successfully",blog})
     }
@@ -105,16 +109,19 @@ async function getBlogById(req,res){
 
 async function updateBlog(req,res){
     try{
+     
      const creator = req.user
-     console.log(creator,"hello")
+     //console.log(creator,"hello")
      const {id} = req.params
+    console.log(id,"edit id",typeof(id))
+     const image=req.file
      const {title,description,draft} = req.body
-     console.log("draft",draft);
+     //console.log("draft",draft,title,description)
 
      const user = await User.findById(creator).select("-password")
-     console.log("user from update blog",user)
+    // console.log("user from update blog",user)
      //console.log(user.blogs.find(blogId=> blogId===id))
-    const blog = await Blog.findById(id)
+    const blog = await Blog.findOne({blogId:id})
     if (!blog) {
         return res.status(500).json({
           message: "Blog is not found",
@@ -125,9 +132,19 @@ async function updateBlog(req,res){
      if(!(creator == blog.creator)){
         return res.status(500).json({"error":error.message,"message":"You are not authorised for this action"})
      }
+
+     if(image){
+      await deleteImagefromCloudinary(blog.imageId)
+      const {secure_url,public_id} = await uploadImageToCloudinary(image.path) // secure_url,public_id
+      fs.unlinkSync(image.path) // deleting the image from the folder
+      blog.imageId = public_id
+      blog.image = secure_url
+     }
      blog.title = title || blog.title
      blog.description = description || blog.description
      blog.draft = draft || blog.draft
+
+     await blog.save()
 
      //const updatedBlog = await Blog.updateOne({_id:id},{title,description,draft},{new:true})
 

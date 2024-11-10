@@ -4,7 +4,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 async function generateJWT(payload){
-const token = await jwt.sign(payload,process.env.JWT_API_SECRET,{expiresIn:"1hr"})
+const token = await jwt.sign(payload,process.env.JWT_API_SECRET)
 return token
 }
 

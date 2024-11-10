@@ -1,10 +1,12 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 export const AddBlog = () => {
   const token = JSON.parse(localStorage.getItem("token"));
+
+  const {id} = useParams()
   const [blogData, setBlogData] = useState({
     title: "",
     description: "",
@@ -16,6 +18,29 @@ export const AddBlog = () => {
       return navigate("/signin");
     }
   }, []);
+
+  async function handleUpdateBlog(){
+    try {
+      console.log("blog data for update",blogData)
+      const res = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`,
+        blogData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(res);
+      toast.success(res.data.message);
+      navigate("/");
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  }
+
+
   async function handlePostBlog() {
     console.log(blogData);
     try {
@@ -36,8 +61,34 @@ export const AddBlog = () => {
       toast.error(error.response.data.message);
     }
   }
-  return (
-    <div>
+
+  async function fetchBlogById(){
+    try{
+       
+            let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`)
+            console.log(res)
+            setBlogData({
+              title:res.data.blog.title,
+              description:res.data.blog.description,
+              image:res.data.blog.image
+            })
+        }
+    
+   catch(error){
+    console.log(error)
+toast.error(error.response.data.message)
+   }
+}
+useEffect(()=>{
+   // fetchBlogById()
+   if(id){
+    fetchBlogById()
+   }
+},[id])
+  return <>
+    
+  {
+     (  <div>
       <label htmlFor="">Title</label>
       <input
         type="text"
@@ -47,6 +98,7 @@ export const AddBlog = () => {
         onChange={(e) =>
           setBlogData((prev) => ({ ...prev, title: e.target.value }))
         }
+        value={blogData.title}
       />
       <br></br>
       <label htmlFor="">Description</label>
@@ -58,15 +110,17 @@ export const AddBlog = () => {
         onChange={(e) =>
           setBlogData((prev) => ({ ...prev, description: e.target.value }))
         }
+        value={blogData.description}
       />
       <br></br>
       <div>
         <label htmlFor="image">
-          {blogData.image ? (
+          {blogData.image  ? (
             <img
-              src={URL.createObjectURL(blogData.image)}
+              src={ typeof blogData.image == "string" ? blogData.image : URL.createObjectURL(blogData.image)}
               alt=""
               className="aspect-video object-cover"
+
             />
           ) : (
             <div className=" bg-slate-500 aspect-video flex justify-center items-center text-4xl">
@@ -87,8 +141,10 @@ export const AddBlog = () => {
         />
       </div>
       <br></br>
-      <button onClick={handlePostBlog}>Post blog</button>
-    </div>
+      <button onClick={id ? handleUpdateBlog: handlePostBlog}>{id ? "update blog" : "Post blog"}</button>
+    </div>) 
+  }
+  </>
     // token == null ?<Navigate to="/signin"/> : <div>Add blog</div>
-  );
+  
 };

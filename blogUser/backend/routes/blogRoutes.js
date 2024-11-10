@@ -9,7 +9,7 @@ const route = express.Router();
 route.post("/blogs",verifyUser,upload.single("image"),createBlog);
 route.get("/blogs",getAllBlog);
 route.get("/blogs/:blogId", getBlogById);
-route.patch("/blogs/:id",verifyUser,updateBlog);
+route.patch("/blogs/:id",verifyUser,upload.single("image"),updateBlog);
 route.delete("/blogs/:id",verifyUser,deleteBlog);
 
 //like/dislike blog
