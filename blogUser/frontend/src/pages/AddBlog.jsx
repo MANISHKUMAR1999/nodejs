@@ -1,10 +1,12 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 export const AddBlog = () => {
-  const token = JSON.parse(localStorage.getItem("token"));
+  const {token} = useSelector((slice)=>slice.user)
+  const {title,description,image} = useSelector((slice)=>slice.selectedBlog)
 
   const {id} = useParams()
   const [blogData, setBlogData] = useState({
@@ -65,12 +67,12 @@ export const AddBlog = () => {
   async function fetchBlogById(){
     try{
        
-            let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`)
-            console.log(res)
+            // let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`)
+            // console.log(res)
             setBlogData({
-              title:res.data.blog.title,
-              description:res.data.blog.description,
-              image:res.data.blog.image
+              title:title,
+              description:description,
+              image:image
             })
         }
     

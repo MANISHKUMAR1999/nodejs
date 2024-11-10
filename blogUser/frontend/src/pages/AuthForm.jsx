@@ -4,6 +4,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import axios from 'axios'
 import {Link} from 'react-router-dom'
+import { useDispatch } from "react-redux";
+import { login } from "../utils/userSlice";
 
    function AuthForm({type}){
     console.log(type)
@@ -12,6 +14,10 @@ import {Link} from 'react-router-dom'
       email: "",
       password: "",
     });
+
+    const dispatch = useDispatch()
+
+
     async function handleAuthForm(e) {
       e.preventDefault();
       console.log(userData)
@@ -28,8 +34,9 @@ import {Link} from 'react-router-dom'
       //   const response = await data.json()
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/${type}`,userData
       )
-      localStorage.setItem('user',JSON.stringify(res.data.user));
-      localStorage.setItem('token',JSON.stringify(res.data.token))
+      dispatch(login(res.data.user))
+     // localStorage.setItem('user',JSON.stringify(res.data.user));
+     
       toast.success(res.data.message)
       console.log(res.data.message)
      }

@@ -1,12 +1,18 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
+import { addSlectedBlog } from '../utils/selectedBlogSlice'
 //import {jwt} from 'jsonwebtoken'
 
 export const BlogPage = () => {
-  const user =  JSON.parse(localStorage.getItem("user"));
-  const token =  JSON.parse(localStorage.getItem("tokn"));
+  // const user =  JSON.parse(localStorage.getItem("user"));
+  // const token =  JSON.parse(localStorage.getItem("tokn"));
+
+  const user = useSelector((slice)=>slice.user)
+  const dispatch = useDispatch()
+  //console.log("token",token)
  
     const [blogData,setBlogData] = useState({})
     const {id} = useParams()
@@ -17,6 +23,7 @@ export const BlogPage = () => {
             let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`)
             console.log(res)
             setBlogData(res.data.blog)
+            dispatch(addSlectedBlog(res.data.blog))
         }
     
    catch(error){

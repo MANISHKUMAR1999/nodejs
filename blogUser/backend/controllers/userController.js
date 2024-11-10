@@ -40,8 +40,9 @@ console.log(hasedPassword)
     "name":newUser.name,
     "email":newUser.email,
     "blogs":newUser.blogs,
+    token
    
-  }, token})
+  }})
 }
 catch(err){
     return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})
@@ -83,7 +84,7 @@ let token = await generateJWT({
 
   
   
-    return res.status(200).json({"sucess":"true","message":"logged in successfully","user":{name:checkForExistingUser.name,email:checkForExistingUser.email,id:checkForExistingUser._id},token})
+    return res.status(200).json({"sucess":"true","message":"logged in successfully","user":{name:checkForExistingUser.name,email:checkForExistingUser.email,id:checkForExistingUser._id,token:token}})
   }
   catch(err){
       return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})
