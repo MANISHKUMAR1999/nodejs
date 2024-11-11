@@ -37,6 +37,7 @@ console.log(hasedPassword)
     "id":newUser._id
   })
   return res.status(200).json({"sucess":"true","message":"user created successfully","user":{
+    "id":newUser._id,
     "name":newUser.name,
     "email":newUser.email,
     "blogs":newUser.blogs,

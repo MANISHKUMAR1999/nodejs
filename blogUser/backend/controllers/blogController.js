@@ -204,11 +204,11 @@ async function likeBlog(req,res){
       
          if(!blog.likes.includes(creator)){
             await Blog.findByIdAndUpdate(id,{$push:{likes:creator}})
-            return res.status(200).json({"success":true,"message":"Blog Likes Successfully"})
+            return res.status(200).json({"success":true,"message":"Blog Likes Successfully","isLiked":true})
          }
          else{
             await Blog.findByIdAndUpdate(id, { $pull: { likes: creator } });
-            return res.status(200).json({"success":true,"message":"Blog disLikes Successfully"})
+            return res.status(200).json({"success":true,"message":"Blog disLikes Successfully","isLiked":false})
 
          }
       //  return res.status(200).json({"success":true,"message":"Blog Deleted Successfully"})
