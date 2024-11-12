@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { addSlectedBlog } from '../utils/selectedBlogSlice'
+import { addSlectedBlog,removeSelectedBlog } from '../utils/selectedBlogSlice'
 //import {jwt} from 'jsonwebtoken'
 
 export const BlogPage = () => {
@@ -12,7 +12,8 @@ export const BlogPage = () => {
 
   const {email,token,name,id:userId} = useSelector((slice)=>slice.user)
   
-  const {likes} = useSelector((slice)=>slice.selectedBlog)
+  //const {likes} = useSelector((slice)=>slice.selectedBlog)
+  //console.log(likes,"likes")
   const dispatch = useDispatch()
   const location = useLocation();
   //console.log("token",token)
@@ -23,14 +24,12 @@ export const BlogPage = () => {
     console.log(id)
     async function fetchBlogById(){
       try {
-        let {
-          data: { blog },
-        } = await axios.get(`http://localhost:3000/api/v1/blogs/${id}`);
-        setBlogData(blog);
-        
-        dispatch(addSlectedBlog(blog));
+        let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`)
+        console.log(res,"res from blog page")
+        setBlogData(res.data.blog)
+        dispatch(addSlectedBlog(res.data.blog))
   
-        if (blog.likes.includes(userId)) {
+        if (res.data.blog.likes.includes(userId)) {
           setIsLike((prev) => !prev);
         }
   
@@ -52,6 +51,7 @@ async function handleLike(){
         },
       }
     );
+    console.log(userId,"user id from store")
     dispatch(changeLikes(userId));
     toast.success(res.data.message);
   } else {
@@ -66,19 +66,19 @@ useEffect(()=>{
       //   console.log(window.location.pathname); // currnt path
       //   console.log(location.pathname); //previous path
       //dispatch(setIsOpen(false));
-      if (window.location.pathname !== `/edit/${id}` && window.location.pathname !== `/blog/${id}`) {
+      if (window.location.pathname !== `/edit/${id}`&& window.location.pathname !== `/blog/${id}`) {
         dispatch(removeSelectedBlog());
       }
     };
 },[id])
 
   return (
-    <div>
+    <div className='max-w-[700px] mx-auto'>
 
     
     {
-        blogData ? <div className='max-w-[1000px]'> 
-            <h1 className='mt-10 font-bold text-6xl'>{blogData.title}</h1>
+        blogData ? <div > 
+            <h1 className='mt-10 font-bold text-6xl capitalize'>{blogData.title}</h1>
             <h2 className='my-5 text-3xl'>{blogData.creator && blogData.creator.name}</h2>
             <img src={blogData.image} alt="" srcset="" />
             {
@@ -109,7 +109,7 @@ useEffect(()=>{
               </div>
               <div className='flex gap-2'>
               <i class="fi fi-sr-comment-alt text-3xl"></i>
-             {  <p className='text-2xl'>{likes.length}</p>}
+             {  <p className='text-2xl'>hello</p>}
                 </div>
              
             </div>

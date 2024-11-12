@@ -3,7 +3,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import axios from 'axios'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import { useDispatch } from "react-redux";
 import { login } from "../utils/userSlice";
 
@@ -16,6 +16,7 @@ import { login } from "../utils/userSlice";
     });
 
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
 
     async function handleAuthForm(e) {
@@ -36,7 +37,7 @@ import { login } from "../utils/userSlice";
       )
       dispatch(login(res.data.user))
      // localStorage.setItem('user',JSON.stringify(res.data.user));
-     
+     navigate("/")
       toast.success(res.data.message)
       console.log(res.data.message)
      }

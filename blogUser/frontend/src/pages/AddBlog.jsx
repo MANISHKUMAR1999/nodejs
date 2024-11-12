@@ -90,7 +90,7 @@ useEffect(()=>{
   return <>
     
   {
-     (  <div>
+     (  <div className="w-[500px] mx-auto">
       <label htmlFor="">Title</label>
       <input
         type="text"
