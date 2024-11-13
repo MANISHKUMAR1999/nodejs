@@ -8,7 +8,7 @@ import { BlogPage } from "./pages/BlogPage";
 
 function App() {
   return (
-    <div className="bg-slate-200 w-screen h-screen">
+    <div className="">
       
       <Routes>
         <Route path="/" element={<Navbar/>}>
