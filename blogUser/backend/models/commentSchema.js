@@ -6,6 +6,7 @@ const commentSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    
     blog: // comment on which blog
         {
             type:mongoose.Schema.Types.ObjectId,
@@ -21,7 +22,7 @@ const commentSchema = new mongoose.Schema({
             ref:"User"
         }],
     
-})
+}, { timestamps: true })
 
 const Comment = mongoose.model('Comment',commentSchema)
 

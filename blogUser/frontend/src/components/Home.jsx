@@ -19,13 +19,13 @@ fetchBlogs()
 
   return (
     <div className="w-[50%] mx-auto">
-      {blogs.map((blog) => (
+      {blogs && blogs.map((blog) => (
         <Link to={"/blog/" + blog.blogId}>
           <div key={blog._id} className="w-full my-10 flex justify-between ">
             <div className="w-[60%] flex flex-col gap-2">
               <div>
                 <img src="" alt="" />
-                <p className="">{blog.creator.name}</p>
+                <p className="">{blog.creator?.name}</p>
               </div>
               <h2 className="font-bold text-3xl">{blog.title}</h2>
               <h4 className="line-clamp-2">{blog.description}</h4>
