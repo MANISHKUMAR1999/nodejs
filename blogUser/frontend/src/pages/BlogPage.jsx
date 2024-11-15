@@ -19,7 +19,7 @@ export const BlogPage = () => {
 
   //const {likes} = useSelector((slice)=>slice.selectedBlog)
   //console.log(likes,"likes")
-  const {comments} = useSelector((slice)=>slice.selectedBlog)
+  const {comments,content} = useSelector((slice)=>slice.selectedBlog)
   const dispatch = useDispatch();
   const location = useLocation();
   //console.log("token",token)
@@ -119,6 +119,44 @@ export const BlogPage = () => {
               <i onClick={handleComment} class="fi fi-sr-comment-alt text-3xl"></i>
               {blogData.comments && <p className="text-2xl">{comments.length}</p>}
             </div>
+            <div className="my-10">
+            {content.blocks && content.blocks.map((block) => {
+              if (block.type == "header") {
+                if (block.data.level == 2) {
+                  return (
+                    <h2 className="font-bold text-4xl my-4"
+                      dangerouslySetInnerHTML={{ __html: block.data.text }}
+                    ></h2>
+                  );
+                } else if (block.data.level == 3) {
+                  return (
+                    <h3 className="font-bold text-3xl my-4"
+                      dangerouslySetInnerHTML={{ __html: block.data.text }}
+                    ></h3>
+                  );
+                } else if (block.data.level == 4) {
+                  return (
+                    <h4  className="font-bold text-2xl my-4"
+                      dangerouslySetInnerHTML={{ __html: block.data.text }}
+                    ></h4>
+                  );
+                }
+              } else if (block.type == "paragraph") {
+                return (
+                  <p className="my-4" dangerouslySetInnerHTML={{ __html: block.data.text }}></p>
+                );
+              }
+              else if (block.type == "image") {
+                return (
+                  <div className="my-4">
+                    <img src={block.data.file.url} alt="" />
+                    <p className="text-center my-2">{block.data.caption}</p>
+                  </div>
+                );
+              }
+
+            })}
+              </div>
           </div>
         </div>
       ) : (

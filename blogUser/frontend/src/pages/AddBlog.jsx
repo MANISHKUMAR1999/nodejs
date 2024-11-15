@@ -1,18 +1,23 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import EditorJS from '@editorjs/editorjs';
+import Header from '@editorjs/header';
 
 export const AddBlog = () => {
   const {token} = useSelector((slice)=>slice.user)
   const {title,description,image} = useSelector((slice)=>slice.selectedBlog)
 
   const {id} = useParams()
+  const editorjsRef = useRef(null);
   const [blogData, setBlogData] = useState({
     title: "",
     description: "",
     image: null,
+    content:""
   });
   const navigate = useNavigate();
   useEffect(() => {
@@ -81,12 +86,46 @@ export const AddBlog = () => {
 toast.error(error.response.data.message)
    }
 }
+function intializeEditor(){
+  editorjsRef.current = new EditorJS({
+  holder:'editorjs',
+  placeholder:'write something......',
+  tools:{
+    header:{
+      class:Header,
+      inlineToolbar:true,
+      config:{
+        placeholder:"Enter a header",
+        levels:[2,3,4],
+        defaultlevel:3
+      }
+    }
+  },
+  onChange:async()=>{
+    const data = await editorjsRef.current.save()
+    setBlogData((blogData)=>({...blogData,content:data}))
+    console.log(data,"editor js")
+
+  }
+})
+}
+
+
 useEffect(()=>{
    // fetchBlogById()
    if(id){
     fetchBlogById()
    }
 },[id])
+
+useEffect(()=>{
+  if (editorjsRef.current === null) {
+    intializeEditor();
+  }
+},[])
+
+
+
   return <>
     
   {
@@ -143,6 +182,7 @@ useEffect(()=>{
         />
       </div>
       <br></br>
+      <div id="editorjs"></div>
       <button onClick={id ? handleUpdateBlog: handlePostBlog}>{id ? "update blog" : "Post blog"}</button>
     </div>) 
   }

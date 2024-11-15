@@ -18,7 +18,7 @@ async function createBlog(req,res){
 //   }
   // added the creatorfrom user object
   const creator = req.user;
-    const {title,description,draft} = req.body
+    const {title,description,draft,content} = req.body
     const image=req.file
     console.log(image)
    try{
@@ -32,6 +32,10 @@ async function createBlog(req,res){
     if(!description){
         return res.status(400).json({"message":"please fill description field"})
     }
+
+    if(!content){
+      return res.status(400).json({"message":"Please enter the content block"})
+  }
 
     const findUser = await User.findById(creator)
 
@@ -47,7 +51,7 @@ fs.unlinkSync(image.path) // deleting the image from the folder
 //const blogId = title.toLowerCase().replace(/ +/g, '-')
 const blogId = title.toLowerCase().split(" ").join("-") + "-" + randomUUID();
     const blog = await Blog.create({
-         title,description,draft,creator,image:secure_url,imageId:public_id,blogId
+         title,description,draft,creator,image:secure_url,imageId:public_id,blogId,content
        })
 
        await User.findByIdAndUpdate(creator,{$push:{blogs:blog._id}})

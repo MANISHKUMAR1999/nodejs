@@ -11,6 +11,10 @@ const blogSchema = new mongoose.Schema({
        required:true
        
     },
+    content:{
+        type:Object,
+        required:true
+    },
     blogId:{
         type:String,
         required:true,
