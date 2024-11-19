@@ -6,6 +6,14 @@ import { useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
+import List from "@editorjs/list";
+import NestedList from "@editorjs/nested-list";
+import CodeTool from '@editorjs/code';
+import Marker from '@editorjs/marker';
+import Underline from "@editorjs/underline";
+import Embed from "@editorjs/embed";
+import RawTool from "@editorjs/raw";
+import TextVariantTune from "@editorjs/text-variant-tune";
 
 export const AddBlog = () => {
   const {token} = useSelector((slice)=>slice.user)
@@ -99,8 +107,20 @@ function intializeEditor(){
         levels:[2,3,4],
         defaultlevel:3
       }
-    }
+    },
+    List: {
+      class: NestedList,
+      config: {},
+      inlineToolbar: true,
+    },
+    code: CodeTool,
+    Marker: Marker,
+    Underline: Underline,
+    Embed: Embed,
+    RawTool:RawTool,
+    textVariant: TextVariantTune,
   },
+  tunes: ["textVariant"],
   onChange:async()=>{
     const data = await editorjsRef.current.save()
     setBlogData((blogData)=>({...blogData,content:data}))
