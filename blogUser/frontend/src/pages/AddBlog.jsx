@@ -14,6 +14,7 @@ import Underline from "@editorjs/underline";
 import Embed from "@editorjs/embed";
 import RawTool from "@editorjs/raw";
 import TextVariantTune from "@editorjs/text-variant-tune";
+import ImageTool from '@editorjs/image';
 
 export const AddBlog = () => {
   const {token} = useSelector((slice)=>slice.user)
@@ -21,6 +22,7 @@ export const AddBlog = () => {
 
   const {id} = useParams()
   const editorjsRef = useRef(null);
+  const formData = new FormData();
   const [blogData, setBlogData] = useState({
     title: "",
     description: "",
@@ -58,10 +60,19 @@ export const AddBlog = () => {
 
   async function handlePostBlog() {
     console.log(blogData);
+    formData.append("title", blogData.title);
+    formData.append("description", blogData.description);
+    formData.append("image", blogData.image);
+    formData.append("content", JSON.stringify(blogData.content));
+    blogData.content.blocks.forEach((block) => {
+      if (block.type === "image") {
+        formData.append("images", block.data.file.image);
+      }
+    });
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/blogs`,
-        blogData,
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -118,6 +129,25 @@ function intializeEditor(){
     Underline: Underline,
     Embed: Embed,
     RawTool:RawTool,
+    image:{
+      class:ImageTool,
+      config:{
+        uploader:{
+          uploadByFile:async(image)=>{
+            return {
+              success: 1,
+              file: {
+                url: URL.createObjectURL(image),
+                image
+                // any other image data you want to store, such as width, height, color, extension, etc
+              }
+            };
+
+          },
+
+        }
+      }
+    },
     textVariant: TextVariantTune,
   },
   tunes: ["textVariant"],

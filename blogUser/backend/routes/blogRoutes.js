@@ -6,7 +6,7 @@ const upload = require("../utils/multer");
 const route = express.Router();
 
 //blogs
-route.post("/blogs",verifyUser,upload.single("image"),createBlog);
+route.post("/blogs",verifyUser,upload.fields([{ name: "image", maxCount: 1 }, { name: "images" }]),createBlog);
 route.get("/blogs",getAllBlog);
 route.get("/blogs/:blogId", getBlogById);
 route.patch("/blogs/:id",verifyUser,upload.single("image"),updateBlog);

@@ -18,50 +18,52 @@ async function createBlog(req,res){
 //   }
   // added the creatorfrom user object
   const creator = req.user;
-    const {title,description,draft,content} = req.body
-    const image=req.file
-    console.log(image)
-   try{
-    //console.log(req.body)
+    const {title,description,draft} = req.body
+    //const image=req.file
+    const { image, images } = req.files;
+    const content = JSON.parse(req.body.content);
+    console.log({image,title,description,image,images})
+//    try{
+//     //console.log(req.body)
    
   
-    //console.log(description)
-    if(!title){
-        return res.status(400).json({"message":"please fill title field"})
-    }
-    if(!description){
-        return res.status(400).json({"message":"please fill description field"})
-    }
+//     //console.log(description)
+//     if(!title){
+//         return res.status(400).json({"message":"please fill title field"})
+//     }
+//     if(!description){
+//         return res.status(400).json({"message":"please fill description field"})
+//     }
 
-    if(!content){
-      return res.status(400).json({"message":"Please enter the content block"})
-  }
+//     if(!content){
+//       return res.status(400).json({"message":"Please enter the content block"})
+//   }
 
-    const findUser = await User.findById(creator)
+//     const findUser = await User.findById(creator)
 
-console.log(findUser)
-if(!findUser){
-    return res.status(500).json({"message":"not authorised user"})
-}
+// console.log(findUser)
+// if(!findUser){
+//     return res.status(500).json({"message":"not authorised user"})
+// }
 
-// cloudinary code
-  const {secure_url,public_id} = await uploadImageToCloudinary(image.path) // secure_url,public_id
-fs.unlinkSync(image.path) // deleting the image from the folder
-//const blogId = title.toLowerCase().replaceAll(" ")
-//const blogId = title.toLowerCase().replace(/ +/g, '-')
-const blogId = title.toLowerCase().split(" ").join("-") + "-" + randomUUID();
-    const blog = await Blog.create({
-         title,description,draft,creator,image:secure_url,imageId:public_id,blogId,content
-       })
+// // cloudinary code
+//   const {secure_url,public_id} = await uploadImageToCloudinary(image.path) // secure_url,public_id
+// fs.unlinkSync(image.path) // deleting the image from the folder
+// //const blogId = title.toLowerCase().replaceAll(" ")
+// //const blogId = title.toLowerCase().replace(/ +/g, '-')
+// const blogId = title.toLowerCase().split(" ").join("-") + "-" + randomUUID();
+//     const blog = await Blog.create({
+//          title,description,draft,creator,image:secure_url,imageId:public_id,blogId,content
+//        })
 
-       await User.findByIdAndUpdate(creator,{$push:{blogs:blog._id}})
+//        await User.findByIdAndUpdate(creator,{$push:{blogs:blog._id}})
 
-    return res.status(200).json({"success":true,"message":"blog created successfully",blog})
-   }
-   catch(error){
+//     return res.status(200).json({"success":true,"message":"blog created successfully",blog})
+//    }
+//    catch(error){
     
-  return res.status(500).json({"error":error.message})
-   }
+//   return res.status(500).json({"error":error.message})
+//    }
 }
 async function getAllBlog(req,res){
     try{
