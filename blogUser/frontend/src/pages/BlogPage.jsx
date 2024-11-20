@@ -120,7 +120,7 @@ export const BlogPage = () => {
               {blogData.comments && <p className="text-2xl">{comments.length}</p>}
             </div>
             <div className="my-10">
-            {content.blocks && content.blocks.map((block) => {
+            { content?.blocks.map((block) => {
               if (block.type == "header") {
                 if (block.data.level == 2) {
                   return (

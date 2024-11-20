@@ -9,7 +9,7 @@ const ShortUniqueId = require("short-unique-id");
 const { randomUUID } = new ShortUniqueId({ length: 10 });
 
 async function createBlog(req,res){
-   // console.log(await decodedJWT(req.body.token))
+  //  console.log(await decodedJWT(req.body.token))
 //     let isValid = await verifyJWT(req.body.token);
 //     console.log("isvalid",isValid)
     
@@ -17,53 +17,111 @@ async function createBlog(req,res){
 //     return res.status(200).json({"message":"InValid token","success":"false"})
 //   }
   // added the creatorfrom user object
-  const creator = req.user;
-    const {title,description,draft} = req.body
-    //const image=req.file
+  // const creator = req.user;
+  //   const {title,description,draft} = req.body
+  //   //const image=req.file
+  //   const { image, images } = req.files;
+  //   const content = JSON.parse(req.body.content);
+  //   console.log({image,title,description,image,images})
+
+  //   let imageIndex = 0;
+
+  //   for(let i=0;i<content.blocks.length;i++){
+  //     const block = content.blocks[i]
+  //     if(block.type === 'image'){
+  //       const { secure_url, public_id } = await uploadImageToCloudinary(
+  //         `data:image/jpeg;base64,${images[imageIndex].buffer.toString(
+  //           "base64"
+  //         )}`
+  //       );
+  //       console.log(secure_url,public_id)
+
+  //      block.data.file = {
+  //         url: secure_url,
+  //         imageId: public_id,
+  //       };
+  //       imageIndex++;
+  //     }
+  //   }
+  try {
+    const creator = req.user;
+
+    const { title, description, draft } = req.body;
     const { image, images } = req.files;
+
     const content = JSON.parse(req.body.content);
-    console.log({image,title,description,image,images})
-//    try{
-//     //console.log(req.body)
-   
-  
-//     //console.log(description)
-//     if(!title){
-//         return res.status(400).json({"message":"please fill title field"})
-//     }
-//     if(!description){
-//         return res.status(400).json({"message":"please fill description field"})
-//     }
 
-//     if(!content){
-//       return res.status(400).json({"message":"Please enter the content block"})
-//   }
+    if (!title) {
+      return res.status(400).json({
+        message: "Please fill title field",
+      });
+    }
 
-//     const findUser = await User.findById(creator)
+    if (!description) {
+      return res.status(400).json({
+        message: "Please fill description field",
+      });
+    }
 
-// console.log(findUser)
-// if(!findUser){
-//     return res.status(500).json({"message":"not authorised user"})
-// }
+    if (!content) {
+      return res.status(400).json({
+        message: "Please add some content",
+      });
+    }
 
-// // cloudinary code
-//   const {secure_url,public_id} = await uploadImageToCloudinary(image.path) // secure_url,public_id
-// fs.unlinkSync(image.path) // deleting the image from the folder
-// //const blogId = title.toLowerCase().replaceAll(" ")
-// //const blogId = title.toLowerCase().replace(/ +/g, '-')
-// const blogId = title.toLowerCase().split(" ").join("-") + "-" + randomUUID();
-//     const blog = await Blog.create({
-//          title,description,draft,creator,image:secure_url,imageId:public_id,blogId,content
-//        })
+    //cloudinary wali prikriya shuru karo
 
-//        await User.findByIdAndUpdate(creator,{$push:{blogs:blog._id}})
+    let imageIndex = 0;
 
-//     return res.status(200).json({"success":true,"message":"blog created successfully",blog})
-//    }
-//    catch(error){
-    
-//   return res.status(500).json({"error":error.message})
-//    }
+    for (let i = 0; i < content.blocks.length; i++) {
+      const block = content.blocks[i];
+      if (block.type === "image") {
+        const { secure_url, public_id } = await uploadImageToCloudinary(
+          `data:image/jpeg;base64,${images[imageIndex].buffer.toString(
+            "base64"
+          )}`
+        );
+
+        block.data.file = {
+          url: secure_url,
+          imageId: public_id,
+        };
+
+        imageIndex++;
+      }
+    }
+
+    const { secure_url, public_id } = await uploadImageToCloudinary(
+      `data:image/jpeg;base64,${image[0].buffer.toString("base64")}`
+    );
+
+    const blogId =
+      title.toLowerCase().split(" ").join("-") + "-" + randomUUID();
+    // const blogId = title.toLowerCase().replace(/ +/g, '-')
+
+    const blog = await Blog.create({
+      description,
+      title,
+      draft,
+      creator,
+      image: secure_url,
+      imageId: public_id,
+      blogId,
+      content,
+    });
+
+    await User.findByIdAndUpdate(creator, { $push: { blogs: blog._id } });
+
+    return res.status(200).json({
+      message: "Blog created Successfully",
+      blog,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+
 }
 async function getAllBlog(req,res){
     try{
