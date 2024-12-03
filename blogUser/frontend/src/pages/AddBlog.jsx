@@ -18,7 +18,7 @@ import ImageTool from '@editorjs/image';
 
 export const AddBlog = () => {
   const {token} = useSelector((slice)=>slice.user)
-  const {title,description,image} = useSelector((slice)=>slice.selectedBlog)
+  const {title,description,image,content} = useSelector((slice)=>slice.selectedBlog)
 
   const {id} = useParams()
   const editorjsRef = useRef(null);
@@ -37,11 +37,40 @@ export const AddBlog = () => {
   }, []);
 
   async function handleUpdateBlog(){
+    console.log(blogData)
+    let formData = new FormData();
+
+    formData.append("title", blogData.title);
+    formData.append("description", blogData.description);
+    formData.append("image", blogData.image);
+
+    formData.append("content", JSON.stringify(blogData.content));
+
+    let existingImages = [];
+
+    blogData.content.blocks.forEach((block) => {
+      if (block.type === "image") {
+        if (block.data.file.image) {
+          formData.append("images", block.data.file.image);
+        } else {
+          existingImages.push({
+            url: block.data.file.url,
+            imageId: block.data.file.imageId,
+          });
+        }
+      }
+    });
+
+    // for (let data of formData.entries()) {
+    //   console.log(data);
+    // }
+
+    formData.append("existingImages", JSON.stringify(existingImages));
+
     try {
-      console.log("blog data for update",blogData)
       const res = await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`,
-        blogData,
+        "http://localhost:3000/api/v1/blogs/" + id,
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -49,12 +78,30 @@ export const AddBlog = () => {
           },
         }
       );
-      console.log(res);
+
       toast.success(res.data.message);
       navigate("/");
     } catch (error) {
       toast.error(error.response.data.message);
     }
+    // try {
+    //   console.log("blog data for update",blogData)
+    //   const res = await axios.patch(
+    //     `${import.meta.env.VITE_BACKEND_URL}/blogs/${id}`,
+    //     blogData,
+    //     {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   );
+    //   console.log(res);
+    //   toast.success(res.data.message);
+    //   navigate("/");
+    // } catch (error) {
+    //   toast.error(error.response.data.message);
+    // }
   }
 
 
@@ -96,7 +143,8 @@ export const AddBlog = () => {
             setBlogData({
               title:title,
               description:description,
-              image:image
+              image:image,
+              content:content
             })
         }
     
@@ -109,6 +157,7 @@ function intializeEditor(){
   editorjsRef.current = new EditorJS({
   holder:'editorjs',
   placeholder:'write something......',
+  data:content,
   tools:{
     header:{
       class:Header,

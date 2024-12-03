@@ -172,53 +172,105 @@ async function getBlogById(req,res){
 }
 
 async function updateBlog(req,res){
-    try{
-     
-     const creator = req.user
-     //console.log(creator,"hello")
-     const {id} = req.params
-    console.log(id,"edit id",typeof(id))
-     const image=req.file
-     const {title,description,draft} = req.body
-     //console.log("draft",draft,title,description)
+  try {
+    const creator = req.user;
 
-     const user = await User.findById(creator).select("-password")
-    // console.log("user from update blog",user)
-     //console.log(user.blogs.find(blogId=> blogId===id))
-    const blog = await Blog.findOne({blogId:id})
+    const { id } = req.params;
+
+    const { title, description, draft } = req.body;
+
+    const content = JSON.parse(req.body.content);
+    const existingImages = JSON.parse(req.body.existingImages);
+
+    const blog = await Blog.findOne({ blogId: id });
+
     if (!blog) {
-        return res.status(500).json({
-          message: "Blog is not found",
-        });
+      return res.status(500).json({
+        message: "Blog is not found",
+      });
+    }
+
+    if (!(creator == blog.creator)) {
+      return res.status(500).json({
+        message: "You are not authorized for this action",
+      });
+    }
+
+    // console.log(blog);
+
+    let imagesToDelete = blog.content.blocks
+      .filter((block) => block.type == "image")
+      .filter(
+        (block) => !existingImages.find(({ url }) => url == block.data.file.url)
+      )
+      .map((block) => block.data.file.imageId);
+
+    // if (imagesToDelete.length > 0) {
+    //   await Promise.all(
+    //     imagesToDelete.map((id) => deleteImagefromCloudinary(id))
+    //   );
+    // }
+
+    if (req.files.images) {
+      let imageIndex = 0;
+
+      for (let i = 0; i < content.blocks.length; i++) {
+        const block = content.blocks[i];
+        if (block.type === "image" && block.data.file.image) {
+          const { secure_url, public_id } = await uploadImageToCloudinary(
+            `data:image/jpeg;base64,${req.files.images[
+              imageIndex
+            ].buffer.toString("base64")}`
+          );
+
+          block.data.file = {
+            url: secure_url,
+            imageId: public_id,
+          };
+
+          imageIndex++;
+        }
       }
-    console.log("blog",blog)
-
-     if(!(creator == blog.creator)){
-        return res.status(500).json({"error":error.message,"message":"You are not authorised for this action"})
-     }
-
-     if(image){
-      await deleteImagefromCloudinary(blog.imageId)
-      const {secure_url,public_id} = await uploadImageToCloudinary(image.path) // secure_url,public_id
-      fs.unlinkSync(image.path) // deleting the image from the folder
-      blog.imageId = public_id
-      blog.image = secure_url
-     }
-     blog.title = title || blog.title
-     blog.description = description || blog.description
-     blog.draft = draft || blog.draft
-
-     await blog.save()
-
-     //const updatedBlog = await Blog.updateOne({_id:id},{title,description,draft},{new:true})
-
-        // const blog = await Blog.findByIdAndUpdate(blogId,{title,description,draft})
-        return res.status(200).json({"success":true,"message":"Blog Updated Successfully",blog})
-
     }
-    catch(error){
-        return res.status(500).json({"error":error.message})
+
+    // const updatedBlog = await Blog.updateOne(
+    //   { _id: id },
+    //   {
+    //     title,
+    //     description,
+    //     draft,
+    //   }
+    // );
+
+    if (req?.files?.image) {
+      await deleteImagefromCloudinary(blog.imageId);
+      const { secure_url, public_id } = await uploadImageToCloudinary(
+        `data:image/jpeg;base64,${req?.files?.image[0]?.buffer?.toString(
+          "base64"
+        )}`
+      );
+      blog.image = secure_url;
+      blog.imageId = public_id;
     }
+
+    blog.title = title || blog.title;
+    blog.description = description || blog.description;
+    blog.draft = draft || blog.draft;
+    blog.content = content || blog.content;
+
+    await blog.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Blog updated successfully",
+      blog,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
     
 }
 
