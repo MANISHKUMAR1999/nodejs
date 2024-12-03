@@ -6,6 +6,7 @@ import axios from 'axios'
 import {Link, useNavigate} from 'react-router-dom'
 import { useDispatch } from "react-redux";
 import { login } from "../utils/userSlice";
+import Input from "../components/Input";
 
    function AuthForm({type}){
     console.log(type)
@@ -21,70 +22,86 @@ import { login } from "../utils/userSlice";
 
     async function handleAuthForm(e) {
       e.preventDefault();
-      console.log(userData)
-      alert("hello");
-     try{
-      // const data = await fetch(`http://localhost:3000/api/v1/${type}`, {
-      //     method: "POST",
-      //     body: JSON.stringify(userData),
-      //     headers:{
-      //       'Content-Type':'application/json',
-      //     }
-      //   });
-    
-      //   const response = await data.json()
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/${type}`,userData
-      )
-      dispatch(login(res.data.user))
-     // localStorage.setItem('user',JSON.stringify(res.data.user));
-     navigate("/")
-      toast.success(res.data.message)
-      console.log(res.data.message)
-     }
-     catch(error){
-      toast.error(error.response.data.message)
-  console.log(error.response.data.message)//error.response.data.message
-     }
+
+      try {
+        const res = await axios.post(
+          `http://localhost:3000/api/v1/${type}`,
+          userData
+        );
+  
+        if (type == "signup") {
+          toast.success(res.data.message);
+          navigate("/signin");
+        } else {
+          dispatch(login(res.data.user));
+          toast.success(res.data.message);
+          navigate("/");
+        }
+      } catch (error) {
+        toast.error(error.response.data.message);
+      } finally {
+        setUserData({
+          name: "",
+          email: "",
+          password: "",
+        });
+      }
     }
     return (
-      <div className=" w-[20%] flex flex-col items-center gap-5 mt-32">
-        <h1 className="text-3xl">{type == 'signin' ?'Sign In Page' : 'Sign Up Page'}</h1>
+      <div className="w-full">
+      <div className=" bg-gray-100 p-4 rounded-xl mx-auto max-w-[400px] flex flex-col items-center gap-5 mt-52">
+        <h1 className="text-3xl">
+          {type === "signin" ? "Sign in" : "Sign up"}
+        </h1>
         <form
-          className=" w-[100%] flex flex-col items-center gap-5"
+          className="w-[100%] flex flex-col items-center gap-5"
           onSubmit={handleAuthForm}
         >
-         { type =='signup'? <input
-            type="text"
-            className="w-full h-[50px] text-white text-xl p-2 rounded-md focus:outline-none bg-gray-500"
-            placeholder="Enter your Name"
-            onChange={(e) =>
-              setUserData((prev) => ({ ...prev, name: e.target.value }))
-            }
-          /> : ''
-   }
-          <input
-            type="email"
-            className="w-full h-[50px] text-white text-xl p-2 rounded-md focus:outline-none bg-gray-500"
-            placeholder="Enter your email"
-            onChange={(e) =>
-              setUserData((prev) => ({ ...prev, email: e.target.value }))
-            }
+          {type == "signup" && (
+            <Input
+              type={"text"}
+              placeholder={"Enter you name"}
+              setUserData={setUserData}
+              field={"name"}
+              value={userData.name}
+              icon={"fi-br-user"}
+            />
+          )}
+
+          <Input
+            type={"email"}
+            placeholder={"Enter your email"}
+            setUserData={setUserData}
+            field={"email"}
+            value={userData.email}
+            icon={"fi-rr-at"}
           />
-          <input
-            type="password"
-            className="w-full h-[50px] text-white text-xl p-2 rounded-md focus:outline-none bg-gray-500"
-            placeholder="Enter your password"
-            onChange={(e) =>
-              setUserData((prev) => ({ ...prev, password: e.target.value }))
-            }
+
+          <Input
+            type={"password"}
+            placeholder={"Enter your password"}
+            setUserData={setUserData}
+            field={"password"}
+            value={userData.password}
+            icon={"fi-rr-lock"}
           />
-  
-          <button className="w-[100px] h-[50px] text-white text-xl p-2 rounded-md focus:outline-none bg-gray-500">
-            {type =='signin' ? 'Login' : 'Register'}
+
+          <button className="w-[100px] h-[50px] text-white text-xl p-2 rounded-md focus:outline-none bg-blue-500">
+            {type == "signin" ? "Login" : "Register"}
           </button>
         </form>
-        { type == "signin"  ?  <p>Don't have an account <Link to={"/signup"}>Sign up</Link></p> : <p>Already have an account <Link to={"/signin"}>Sign in</Link></p> }
+
+        {type == "signin" ? (
+          <p>
+            Don't have an account <Link to={"/signup"}>Sign up</Link>
+          </p>
+        ) : (
+          <p>
+            Already have an account <Link to={"/signin"}>Sign in</Link>
+          </p>
+        )}
       </div>
+    </div>
     );
   }
   
