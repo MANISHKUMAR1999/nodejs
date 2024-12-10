@@ -21,6 +21,21 @@ const commentSchema = new mongoose.Schema({
             type:mongoose.Schema.Types.ObjectId,
             ref:"User"
         }],
+
+        // Nested Comment Code
+        replies:[
+            {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"Comment"
+            }
+        ],
+        parentComment:{
+            
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"Comment",
+                default:null
+            
+        }
     
 }, { timestamps: true })
 

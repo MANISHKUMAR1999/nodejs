@@ -140,4 +140,60 @@ async function editComment(req,res){
     }
 
 }
-  module.exports = {addComment,deleteComment,editComment,likeComment}
+
+
+async function addNestedComment(req, res) {
+  try {
+    const userId = req.user;
+
+    const { id: blogId, parentCommentId } = req.params;
+
+    const { reply } = req.body;
+
+    const comment = await Comment.findById(parentCommentId);
+
+    const blog = await Blog.findById(blogId);
+
+    if (!comment) {
+      return res.status(500).json({
+        message: "parent comment is not found",
+      });
+    }
+
+    if (!blog) {
+      return res.status(500).json({
+        message: "Blog is not found",
+      });
+    }
+
+    const newReply = await Comment.create({
+      blog: blogId,
+      comment: reply,
+      parentComment: parentCommentId,
+      user: userId,
+    }).then((reply) => {
+      return reply.populate({
+        path: "user",
+        select: "name email",
+      });
+    });
+
+    await Comment.findByIdAndUpdate(parentCommentId, {
+      $push: { replies: newReply._id },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Reply added successfully",
+      newReply,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
+
+
+  module.exports = {addComment,deleteComment,editComment,likeComment,addNestedComment}
