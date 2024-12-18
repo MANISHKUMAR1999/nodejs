@@ -149,16 +149,59 @@ async function getAllBlog(req,res){
 async function getBlogById(req,res){
     try{
         const {blogId} = req.params
-        const blog = await Blog.findOne({blogId}).populate({
-          path:'comments',
-          populate:{
-            path:'user',
-            select:'-password'
-          }
-        }).populate({
-          path:'creator',
-          select:"name email"
+        // const blog = await Blog.findOne({blogId}).populate({
+        //   path:'comments',
+        //   populate:[{
+        //     path:'user',
+        //     select:'-password'
+        //   },{
+        //     path:"replies",
+        //     populate:{
+        //       path:'user',
+        //       select:'name email'
+        //     }
+        //   }]
+        // }).populate({
+        //   path:'creator',
+        //   select:"name email"
+        // })
+        const blog = await Blog.findOne({ blogId })
+        .populate({
+          path: "comments",
+          populate: {
+            path: "user",
+            select: "name email",
+          },
         })
+        .populate({
+          path: "creator",
+          select: "name email followers username",
+        })
+        .lean();
+  
+      async function populateReplies(comments) {
+        for (const comment of comments) {
+          let populatedComment = await Comment.findById(comment._id)
+            .populate({
+              path: "replies",
+              populate: {
+                path: "user",
+                select: "name email",
+              },
+            })
+            .lean();
+  
+          comment.replies = populatedComment.replies;
+  
+          if (comment.replies && comment.replies.length > 0) {
+            await populateReplies(comment.replies);
+          }
+        }
+        return comments;
+      }
+  
+      blog.comments = await populateReplies(blog.comments);
+  
 
         if(!blog){
           res.status(404).json({"success":"true","message":"blog not found"})
