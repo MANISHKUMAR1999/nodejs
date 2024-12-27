@@ -40,10 +40,49 @@ const selectedBlogSlice = createSlice({
   
         return state;
       },
+
+      setReplies(state, action) {
+        let newReply = action.payload;
+  
+        function findParentComment(comments) {
+          let parentComment;
+  
+          for (const comment of comments) {
+            if (comment._id === newReply.parentComment) {
+              parentComment = {
+                ...comment,
+                replies: [...comment.replies, newReply],
+              };
+              break;
+            }
+  
+            if (comment.replies.length > 0) {
+              parentComment = findParentComment(comment.replies);
+              if (parentComment) {
+                parentComment = {
+                  ...comment,
+                  replies: comment.replies.map((reply) =>
+                    reply._id == parentComment._id ? parentComment : reply
+                  ),
+                };
+                break;
+              }
+            }
+          }
+  
+          return parentComment; //top level comment return kr raha hu dost ;
+        }
+  
+        let parentComment = findParentComment(state.comments);
+  
+        state.comments = state.comments.map((comment) =>
+          comment._id == parentComment._id ? parentComment : comment
+        );
+      },
     }
 })
 
 export const {
     addSlectedBlog,
-    removeSelectedBlog,changeLikes,setComments,setCommentLikes} = selectedBlogSlice.actions;
+    removeSelectedBlog,changeLikes,setComments,setCommentLikes,setReplies} = selectedBlogSlice.actions;
   export default selectedBlogSlice.reducer;

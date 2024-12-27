@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsOpen } from "../utils/commentSlice";
 import axios from "axios";
-import { setComments } from "../utils/selectedBlogSlice";
+import { setComments, setReplies } from "../utils/selectedBlogSlice";
 import { formatDate } from "../utils/formatDate";
 import toast from "react-hot-toast";
 import { setCommentLikes } from "../utils/selectedBlogSlice";
@@ -31,9 +31,9 @@ export const Comment = () => {
       );
 
       console.log(res.data);
-
-      dispatch(setComments(res.data.newComment));
       setComment("");
+      dispatch(setComments(res.data.newComment));
+     
     } catch (error) {
       console.log(error);
     }
@@ -53,6 +53,7 @@ export const Comment = () => {
       <div className="my-4">
         <textarea
           type="text"
+          value={comment}
           placeholder="Comment..."
           className=" h-[150px] resize-none drop-shadow w-full p-3 text-lg focus:outline-none"
           onChange={(e) => setComment(e.target.value)}
@@ -72,6 +73,7 @@ export const Comment = () => {
 
 function Displaycomments({comments,userId,blogId,token,activeReply,setActiveReply}){
   const [reply,setReply] = useState('')
+  const dispatch = useDispatch()
 
   async function handleReply(commentId) {
     try {
@@ -88,8 +90,9 @@ function Displaycomments({comments,userId,blogId,token,activeReply,setActiveRepl
       );
 
       console.log(res.data);
-
-      // dispatch(setComments(res.data.newComment));
+setReply('')
+setActiveReply(null)
+      dispatch(setReplies(res.data.newReply));
       // setComment("");
     } catch (error) {
       console.log(error);
@@ -179,6 +182,7 @@ function Displaycomments({comments,userId,blogId,token,activeReply,setActiveRepl
         <div className="my-4">
           <textarea
             type="text"
+           
             placeholder="Reply..."
             className=" h-[150px] resize-none drop-shadow w-full p-3 text-lg focus:outline-none"
             onChange={(e) => setReply(e.target.value)}
