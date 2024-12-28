@@ -11,9 +11,11 @@ export const Comment = () => {
   const dispatch = useDispatch();
   const [comment, setComment] = useState("");
   const [activeReply, setActiveReply] = useState(null);
+  const [currentPopUp, setCurrentPopUp] = useState(null)
+  const [currentEditComment, setCurrentEditComment] = useState(null);
 
   console.log(comment, "hello");
-  const { _id: blogId, comments } = useSelector((state) => state.selectedBlog);
+  const { _id: blogId, comments,creator: { _id: creatorId } } = useSelector((state) => state.selectedBlog);
   const { token, id: userId } = useSelector((state) => state.user);
 
   async function handleComment() {
@@ -65,14 +67,23 @@ export const Comment = () => {
 
       <div className="mt-4 ">
         <Displaycomments comments={comments} userId={userId} blogId={blogId} token={token}  activeReply={activeReply}
-                  setActiveReply={setActiveReply}/>
+                  setActiveReply={setActiveReply}
+                  currentPopUp={currentPopUp}
+                  setCurrentPopUp={setCurrentPopUp}
+                  currentEditComment={currentEditComment}
+                  setCurrentEditComment={setCurrentEditComment}
+                  creatorId={creatorId}
+                  />
       </div>
     </div>
   );
 };
 
-function Displaycomments({comments,userId,blogId,token,activeReply,setActiveReply}){
+function Displaycomments({comments,userId,blogId,token,activeReply,setActiveReply,currentPopUp,setCurrentPopUp, currentEditComment, creatorId
+  ,setCurrentEditComment}){
   const [reply,setReply] = useState('')
+  const [updatedCommentContent, setUpdatedCommentContent] = useState("");
+
   const dispatch = useDispatch()
 
   async function handleReply(commentId) {
@@ -122,10 +133,80 @@ setActiveReply(null)
   function handleActiveReply(id) {
     setActiveReply((prev) => (prev === id ? null : id));
   }
+  async function handleCommentUpdate(id) {
+    try {
+      let res = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/blogs/edit-comment/${id}`,
+        {
+          updatedCommentContent,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success(res.data.message);
+     // dispatch(setUpdatedComments(res.data.updatedComment));
+    } catch (error) {
+      toast.success(error.response.data.message);
+    } finally {
+     // setUpdatedCommentContent("");
+      setCurrentEditComment(null);
+    }
+  }
+
+  async function handleCommentDelete(id) {
+    try {
+      let res = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/blogs/comment/${id}`,
+        
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success(res.data.message);
+     // dispatch(setUpdatedComments(res.data.updatedComment));
+    } catch (error) {
+      toast.success(error.response.data.message);
+    } finally {
+     // setUpdatedCommentContent("");
+      setCurrentEditComment(null);
+    }
+  }
 
   return <>{comments &&
     comments.map((commet) => (
       <div className="flex flex-col gap-2 my-4 border-b-2">
+        {
+
+currentEditComment === commet._id ?   <div className="my-4">
+          <textarea
+            type="text"
+           defaultValue={commet.comment}
+            placeholder="Comment..."
+            className=" h-[150px] resize-none drop-shadow w-full p-3 text-lg focus:outline-none"
+            onChange={(e)=>setUpdatedCommentContent(e.target.value)}
+           
+          />
+          <div className="flex gap-3">
+          <button  className="bg-red-500 px-7 py-3 my-2 rounded-3xl" onClick={()=>setCurrentEditComment(null)}>
+            cancle
+          </button>
+          <button  className="bg-green-500 px-7 py-3 my-2 rounded-3xl" onClick={()=>handleCommentUpdate(commet._id)}>
+            Edit
+          </button>
+          </div>
+        </div>
+   :(
+<>
+        
+
+
         <div className="flex justify-between">
           <div className="flex gap-2 justify-center items-center">
             <div className="h-10 w-10">
@@ -144,13 +225,37 @@ setActiveReply(null)
             </div>
             <div></div>
           </div>
-          <i class="fi fi-rr-menu-dots"></i>
+          {
+   commet.user._id === userId || userId === creatorId ?
+
+            currentPopUp == commet._id ? (<div className="bg-gray-200 w-[70px] rounded-lg">
+               <i
+          class="fi fi-br-cross text-sm relative left-12 text-blue mt-1 cursor-pointer"
+          onClick={()=>setCurrentPopUp((prev)=>prev == commet._id ? null : commet._id )}
+          
+        ></i>
+        {
+
+commet.user._id === userId ?
+          <p className="p-2 py-1 hover:bg-blue-300" onClick={()=>{setCurrentEditComment(commet._id)
+              setCurrentPopUp(null)}}>Edit</p> :''
+        }
+              
+              <p className="p-2 py-1 hover:bg-blue-300" onClick={()=>{handleCommentDelete(commet._id)
+                setCurrentPopUp(null)}}>Delete</p>
+             
+               </div>) : (<i class="fi fi-rr-menu-dots cursor-pointer"  onClick={()=>setCurrentPopUp(commet._id)}></i>) :''
+
+
+
+          }
+          
         </div>
         {/* <img
-                src={`https://api.dicebear.com/9.x/initials/svg?seed=${commet.user.name}`}
-                alt=""
-                className="rounded-full"
-              /> */}
+          //      src={`https://api.dicebear.com/9.x/initials/svg?seed=${commet.user.name}`}
+         //       alt=""
+          //      className="rounded-full"
+           //   /> */}
         <p className="capitalize font-medium text-lg">{commet.comment}</p>
 
         <div className="flex justify-between">
@@ -178,6 +283,9 @@ setActiveReply(null)
 
           <p className="text-lg hover:underline cursor-pointer"   onClick={() => handleActiveReply(commet._id)}>reply</p>
         </div>
+        </>)
+       }
+
         {activeReply === commet._id && (
         <div className="my-4">
           <textarea
@@ -205,6 +313,11 @@ setActiveReply(null)
                   token={token}
                   activeReply={activeReply}
                   setActiveReply={setActiveReply}
+                  currentPopUp={currentPopUp}
+                  setCurrentPopUp={setCurrentPopUp}
+                  currentEditComment={currentEditComment}
+                  setCurrentEditComment={setCurrentEditComment}
+                  creatorId={creatorId}
                  
                 />
               </div>

@@ -67,8 +67,29 @@ async function addComment(req,res){
         message: "You are not authorized",
       });
     }
-        await Blog.findByIdAndUpdate(comment.blog_.id,{$pull:{comments:id}})
-        await Comment.findByIdAndDelete(id)
+    //await Comment.deleteMany({ _id: { $in: comment.replies } });
+
+
+
+    async function deleteCommentAndReplies(id) {
+      let comment = await Comment.findById(id);
+
+     
+      for (let replyId of comment.replies) {
+        await deleteCommentAndReplies(replyId);
+      }
+     
+
+     
+
+      await Comment.findByIdAndDelete(id);
+    }
+
+    await deleteCommentAndReplies(id);
+
+
+        await Blog.findByIdAndUpdate(comment.blog._id,{$pull:{comments:id}})
+       // await Comment.findByIdAndDelete(id)
   
        return res.status(200).json({"success":true,"message":"Comment deleted Successfully"})
     }
@@ -84,7 +105,7 @@ async function editComment(req,res){
     try{
         const userId = req.user;
         const {id} = req.params; // comment ID
-        const {updatecomment} = req.body
+        const {updatedCommentContent} = req.body
         
   
        const comment = await Comment.findById(id)
@@ -99,7 +120,7 @@ async function editComment(req,res){
        }
       console.log(comment,comment.user,userId,comment.user != userId)
      // creating the comment
-       await Comment.findByIdAndUpdate(id,{comment:updatecomment})
+       await Comment.findByIdAndUpdate(id,{comment:updatedCommentContent})
         
   
        return res.status(200).json({"success":true,"message":"Comment updated Successfully"})
