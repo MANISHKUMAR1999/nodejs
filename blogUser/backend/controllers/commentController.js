@@ -74,11 +74,15 @@ async function addComment(req,res){
     async function deleteCommentAndReplies(id) {
       let comment = await Comment.findById(id);
 
-     
       for (let replyId of comment.replies) {
         await deleteCommentAndReplies(replyId);
       }
-     
+
+      if (comment.parentComment) {
+        await Comment.findByIdAndUpdate(comment.parentComment, {
+          $pull: { replies: id },
+        });
+      }
 
      
 
@@ -118,12 +122,22 @@ async function editComment(req,res){
        if(comment.user != userId){
     return res.status(400).json({"success":false,"message":"you are not authorised to perform this action of edit"})
        }
-      console.log(comment,comment.user,userId,comment.user != userId)
+     // console.log(comment,comment.user,userId,comment.user != userId)
      // creating the comment
-       await Comment.findByIdAndUpdate(id,{comment:updatedCommentContent})
-        
+     const updatedComment = await Comment.findByIdAndUpdate(
+      id,
+      {
+        comment: updatedCommentContent,
+      },
+      { new: true }
+    ).then((comment) => {
+      return comment.populate({
+        path: "user",
+        select: "name email",
+      });
+    });
   
-       return res.status(200).json({"success":true,"message":"Comment updated Successfully"})
+       return res.status(200).json({"success":true,"message":"Comment updated Successfully",updatedComment})
     }
     catch(error){
         return res.status(500).json({"error":error.message})

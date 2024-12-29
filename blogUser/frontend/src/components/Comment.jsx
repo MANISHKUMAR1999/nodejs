@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsOpen } from "../utils/commentSlice";
 import axios from "axios";
-import { setComments, setReplies } from "../utils/selectedBlogSlice";
+import { deleteCommentAndReplies, setComments, setReplies, setUpdatedComment } from "../utils/selectedBlogSlice";
 import { formatDate } from "../utils/formatDate";
 import toast from "react-hot-toast";
 import { setCommentLikes } from "../utils/selectedBlogSlice";
@@ -38,6 +38,7 @@ export const Comment = () => {
      
     } catch (error) {
       console.log(error);
+      toast.error(error.response.data.message)
     }
   }
 
@@ -148,11 +149,11 @@ setActiveReply(null)
       );
 
       toast.success(res.data.message);
-     // dispatch(setUpdatedComments(res.data.updatedComment));
+      dispatch(setUpdatedComment(res.data.updatedComment));
     } catch (error) {
       toast.success(error.response.data.message);
     } finally {
-     // setUpdatedCommentContent("");
+      setUpdatedCommentContent("");
       setCurrentEditComment(null);
     }
   }
@@ -170,7 +171,7 @@ setActiveReply(null)
       );
 
       toast.success(res.data.message);
-     // dispatch(setUpdatedComments(res.data.updatedComment));
+     dispatch(deleteCommentAndReplies(id))
     } catch (error) {
       toast.success(error.response.data.message);
     } finally {

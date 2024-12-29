@@ -28,17 +28,41 @@ const selectedBlogSlice = createSlice({
         state.comments = [...state.comments,action.payload]
       },
       setCommentLikes(state, action) {
+        // let { commentId, userId } = action.payload;
+  
+        // let comment = state.comments.find((comment) => comment._id == commentId);
+  
+        // if (comment.likes.includes(userId)) {
+        //   comment.likes = comment.likes.filter((like) => like !== userId);
+        // } else {
+        //   comment.likes = [...comment.likes, userId];
+        // }
+  
+        // return state;
+
+
+
         let { commentId, userId } = action.payload;
+        function toogleLike(comments) {
+          return comments.map((comment) => {
+            if (comment._id == commentId) {
+              if (comment.likes.includes(userId)) {
+                comment.likes = comment.likes.filter((like) => like !== userId);
+                return comment;
+              } else {
+                comment.likes = [...comment.likes, userId];
+                return comment;
+              }
+            }
   
-        let comment = state.comments.find((comment) => comment._id == commentId);
+            if (comment.replies && comment.replies.length > 0) {
+              return { ...comment, replies: toogleLike(comment.replies) };
+            }
   
-        if (comment.likes.includes(userId)) {
-          comment.likes = comment.likes.filter((like) => like !== userId);
-        } else {
-          comment.likes = [...comment.likes, userId];
+            return comment;
+          });
         }
-  
-        return state;
+        state.comments = toogleLike(state.comments);
       },
 
       setReplies(state, action) {
@@ -79,10 +103,41 @@ const selectedBlogSlice = createSlice({
           comment._id == parentComment._id ? parentComment : comment
         );
       },
-    }
+
+      setUpdatedComment(state,action){
+        function updateComment(comments) {
+          return comments.map((comment) =>
+            comment._id == action.payload._id
+              ? { ...comment, comment: action.payload.comment }
+              : comment.replies && comment.replies.length > 0
+              ? { ...comment, replies: updateComment(comment.replies) }
+              : comment
+          );
+        }
+  
+        state.comments = updateComment(state.comments);
+      },
+
+      deleteCommentAndReplies(state,action){
+
+        function deleteComment(comments) {
+          return comments
+            .filter((comment) => comment._id !== action.payload)
+            .map((comment) =>
+              comment.replies && comment.replies.length > 0
+                ? { ...comment, replies: deleteComment(comment.replies) }
+                : comment
+            );
+        }
+  
+        state.comments = deleteComment(state.comments);
+      },
+
+      }
+    
 })
 
 export const {
     addSlectedBlog,
-    removeSelectedBlog,changeLikes,setComments,setCommentLikes,setReplies} = selectedBlogSlice.actions;
+    removeSelectedBlog,changeLikes,setComments,setCommentLikes,setReplies,setUpdatedComment,deleteCommentAndReplies} = selectedBlogSlice.actions;
   export default selectedBlogSlice.reducer;
