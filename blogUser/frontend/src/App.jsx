@@ -5,6 +5,7 @@ import { Navbar } from "./components/Navbar";
 import { Home } from "./components/Home";
 import { AddBlog } from "./pages/AddBlog";
 import { BlogPage } from "./pages/BlogPage";
+import { VerifyUser } from "./components/VerifyUser";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/add-blog" element={<AddBlog/>}></Route>
           <Route path="/blog/:id" element={<BlogPage/>}></Route>
           <Route path="/edit/:id" element={<AddBlog/>}></Route>
+          <Route path="/verify-email/:verificationToken" element={<VerifyUser/>}></Route>
           </Route>
       </Routes>
     </div>

@@ -13,7 +13,11 @@ const userSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"Blog"
     }
-]
+],
+verify:{
+    type:Boolean,
+    default:false
+}
 })
 
 const User = mongoose.model('User',userSchema)
