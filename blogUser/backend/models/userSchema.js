@@ -17,8 +17,12 @@ const userSchema = new mongoose.Schema({
 verify:{
     type:Boolean,
     default:false
-}
-})
+},
+googleAuth: {
+    type : Boolean,
+    default: false,
+  },
+},{timestamps:true})
 
 const User = mongoose.model('User',userSchema)
 

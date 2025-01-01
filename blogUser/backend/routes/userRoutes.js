@@ -1,7 +1,7 @@
 
 const express = require('express');
 
-const {createUser,getAllUser,getUserById,updateUser,deleteUser, login,verifyToken} = require('../controllers/userController');
+const {createUser,getAllUser,getUserById,updateUser,deleteUser, login,verifyEmail,googleAuth} = require('../controllers/userController');
 
 const routes = express.Router();
 
@@ -21,6 +21,9 @@ routes.delete('/users/:id',deleteUser)
 
 // verify email/token
 
-routes.get("/verify-email/:verificationToken",verifyToken)
+routes.get("/verify-email/:verificationToken",verifyEmail)
 
+// google Auth route
+
+routes.post("/google-auth",googleAuth)
 module.exports = routes
