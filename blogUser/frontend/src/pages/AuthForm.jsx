@@ -7,6 +7,8 @@ import {Link, useNavigate} from 'react-router-dom'
 import { useDispatch } from "react-redux";
 import { login } from "../utils/userSlice";
 import Input from "../components/Input";
+import googleIcon from "../assets/google-icon-logo-svgrepo-com.svg"
+import { googleAuth } from "../utils/firebase";
 
    function AuthForm({type}){
     console.log(type)
@@ -47,6 +49,28 @@ import Input from "../components/Input";
         });
       }
     }
+
+    async function handleGoogleAuth() {
+      try {
+        let data = await googleAuth();
+        console.log(data)
+        const res = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/google-auth`,
+          {
+            accessToken: data.accessToken,
+           }
+        );
+         console.log(res);
+       dispatch(login(res.data.user));
+        toast.success(res.data.message);
+       navigate("/");
+      } catch (error) {
+        console.log(error);
+        toast.error(error.response.data.message);
+      }
+    }
+
+
     return (
       <div className="w-full">
       <div className=" bg-gray-100 p-4 rounded-xl mx-auto max-w-[400px] flex flex-col items-center gap-5 mt-52">
@@ -90,6 +114,13 @@ import Input from "../components/Input";
             {type == "signin" ? "Login" : "Register"}
           </button>
         </form>
+        <p className="text-xl font-semibold">or</p>
+        <div onClick={handleGoogleAuth} className="bg-white border hover:bg-blue-200 flex gap-4 cursor-pointer justify-center w-full overflow-hidden py-3 px-4 rounded-full">
+          <p className="text-2xl font-medium">Continue with</p>
+          <div>
+          <img className="w-8 h-8" src={googleIcon} alt="" srcset="" />
+          </div>
+        </div>
 
         {type == "signin" ? (
           <p>
