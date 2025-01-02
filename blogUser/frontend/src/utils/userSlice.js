@@ -15,7 +15,10 @@ const userSlice = createSlice({
       return action.payload;
         },
         logout(state,action){
-            state.user = action.payload
+            localStorage.removeItem("user");
+            return {
+                token:null
+            }
         }
 
     }

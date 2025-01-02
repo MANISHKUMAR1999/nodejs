@@ -1,14 +1,23 @@
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import logo from '../../public/logo.svg'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../utils/userSlice';
 
 export const Navbar = () => {
   const { token, name } = useSelector((state) => state.user);
+  const dispatch = useDispatch()
+  const [showPopup, setShowPopup] = useState(false);
+
+
+  function handleLogout() {
+    dispatch(logout());
+    setShowPopup(false);
+  }
   return (
     <>
-    <div className="bg-white max-w-full flex justify-between items-center h-[70px] px-[30px] border-b drop-shadow-sm">
+    <div className="bg-white max-w-full flex justify-between items-center relative h-[70px] px-[30px] border-b drop-shadow-sm">
       <div className="flex gap-4 items-center">
         <Link to={"/"}>
           <div className="">
@@ -34,7 +43,13 @@ export const Navbar = () => {
         </Link>
 
         {token ? (
-          <div className="text-xl capitalize">{name}</div>
+          <div className="h-10 w-10 cursor-pointer" onClick={()=>setShowPopup(prev=>!prev)}>
+          <img
+            src={`https://api.dicebear.com/9.x/initials/svg?seed=${name}`}
+            alt=""
+            className="rounded-full "
+          />
+        </div>
         ) : (
           <div className=" flex gap-2">
             <Link to={"/signup"}>
@@ -50,6 +65,15 @@ export const Navbar = () => {
           </div>
         )}
       </div>
+      {
+        showPopup ? (<div className='w-[150px]  bg-gray-200 absolute right-2 rounded-xl top-14 drop-shadow-md'>
+          <p className="popup rounded-t-xl">Profile</p>
+                <p className="popup">Setting</p>
+                <p className="popup rounded-b-xl" onClick={handleLogout}>
+                  Logout
+                </p>
+          </div>):null
+      }
     </div>
     <Outlet />
   </>

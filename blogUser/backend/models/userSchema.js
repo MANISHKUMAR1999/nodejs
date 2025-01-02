@@ -22,6 +22,10 @@ googleAuth: {
     type : Boolean,
     default: false,
   },
+  profilePic: {
+    type: String,
+    default: null,
+  },
 },{timestamps:true})
 
 const User = mongoose.model('User',userSchema)
