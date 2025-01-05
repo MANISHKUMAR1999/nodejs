@@ -6,6 +6,8 @@ const { verify } = require('jsonwebtoken')
 const  transporter  = require('../utils/transporter')
 const admin = require("firebase-admin");
 const {getAuth} = require("firebase-admin/auth")
+const ShortUniqueId = require("short-unique-id");
+const { randomUUID } = new ShortUniqueId({ length: 5 });
 
 
 admin.initializeApp({
@@ -63,7 +65,7 @@ if(checkForExistingUser){
     //email logic
   
     const sendingEmail = transporter.sendMail({
-      from: "", // email from
+      from: process.env.EMAIL_USER, // email from
       to: checkForExistingUser.email,
       subject: "Email Verification",
       text: "Please verify your email",
@@ -82,12 +84,20 @@ if(checkForExistingUser){
 
 
 const hasedPassword = await bcrypt.hash(password,10)
+
+const username = email.split('@')[0] + randomUUID()
+
+
+
 console.log(hasedPassword)
+console.log(username,"user name")
 
   const newUser = await User.create({
     name:name,
     email:email,
-    password:hasedPassword
+    password:hasedPassword,
+    username
+   
   })
   const verificationToken = await generateJWT({
     "email":newUser.email,
@@ -96,7 +106,7 @@ console.log(hasedPassword)
 
   // email logic
   const sendingEmail = transporter.sendMail({
-    from:'', // from email
+    from:process.env.EMAIL_USER, // from email
     to:email,
     subject:'Email Verification',
     text:'Please verify your Email',
@@ -197,7 +207,7 @@ async function login(req,res) {
     });
   }
  
-  if (!checkForExistingUser.isVerify) {
+  if (!checkForExistingUser.verify) {
     // send verification email
     let verificationToken = await generateJWT({
       email: checkForExistingUser.email,
@@ -207,7 +217,7 @@ async function login(req,res) {
     //email logic
 
     const sendingEmail = transporter.sendMail({
-      from: EMAIL_USER,
+      from: process.env.EMAIL_USER,
       to: checkForExistingUser.email,
       subject: "Email Verification",
       text: "Please verify your email",
@@ -415,7 +425,7 @@ async function googleAuth(req, res) {
       name,
       email,
       googleAuth: true,
-      isVerify: true,
+      verify: true,
     });
 
     let token = await generateJWT({

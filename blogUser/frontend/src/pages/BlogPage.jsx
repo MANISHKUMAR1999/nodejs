@@ -10,6 +10,28 @@ import { setIsOpen } from "../utils/commentSlice";
 //import Comment from '../components/Comment'
 //import {jwt} from 'jsonwebtoken'
 
+export  async function handleSaveBlog(id,token){
+
+  try {
+    let res = await axios.patch(
+      `${import.meta.env.VITE_BACKEND_URL}/save-blog/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    toast.success(res.data.message);
+
+    // dispatch(addSlectedBlog(blog));
+  } catch (error) {
+    toast.error(error.response.data.message);
+  }
+}
+
+
+
 export const BlogPage = () => {
   // const user =  JSON.parse(localStorage.getItem("user"));
   // const token =  JSON.parse(localStorage.getItem("tokn"));
@@ -119,6 +141,15 @@ export const BlogPage = () => {
               <i onClick={handleComment} class="fi fi-sr-comment-alt text-3xl"></i>
               {blogData.comments && <p className="text-2xl">{comments.length}</p>}
             </div>
+            <div className="flex gap-2 cursor-pointer" onClick={(e)=>handleSaveBlog(blogData._id,token)}>
+              {
+                blogData.totalSaves && blogData.totalSaves.includes(userId) ? <i className="fi fi-sr-bookmark text-3xl mt-1"></i>:<i className="fi fi-rr-bookmark text-3xl mt-1"></i>
+              }
+                
+                    
+                    
+                  </div>
+
             <div className="my-10">
             { content?.blocks.map((block) => {
               if (block.type == "header") {

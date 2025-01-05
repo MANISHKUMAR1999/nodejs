@@ -175,9 +175,10 @@ async function getBlogById(req,res){
         })
         .populate({
           path: "creator",
-          select: "name email followers username",
+          select: "name email",
         })
         .lean();
+       
   
       async function populateReplies(comments) {
         for (const comment of comments) {
@@ -350,7 +351,7 @@ async function deleteBlog(req,res){
 async function likeBlog(req,res){
 
     try{
-        const creator = req.user;
+        const user = req.user;
         const {id} = req.params;
         const blog = await Blog.findById(id)
         if (!blog) {
@@ -358,15 +359,17 @@ async function likeBlog(req,res){
               message: "Blog is not found",
             });
           }
-          console.log(blog)
-          console.log(creator)
+          // console.log(blog)
+          // console.log(creator)
       
-         if(!blog.likes.includes(creator)){
-            await Blog.findByIdAndUpdate(id,{$push:{likes:creator}})
+         if(!blog.likes.includes(user)){
+            await Blog.findByIdAndUpdate(id,{$push:{likes:user}})
+            await User.findByIdAndUpdate(user,{$push:{likeBlogs:id}})
             return res.status(200).json({"success":true,"message":"Blog Likes Successfully","isLiked":true})
          }
          else{
-            await Blog.findByIdAndUpdate(id, { $pull: { likes: creator } });
+            await Blog.findByIdAndUpdate(id, { $pull: { likes: user } });
+            await User.findByIdAndUpdate(user,{$pull:{likeBlogs:id}})
             return res.status(200).json({"success":true,"message":"Blog disLikes Successfully","isLiked":false})
 
          }
@@ -451,4 +454,41 @@ async function deleteComment(req,res){
 
 }
 
-module.exports = {createBlog,getAllBlog,getBlogById,updateBlog,deleteBlog,likeBlog,addComment,deleteComment}
+async function saveBlog(req, res) {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return res.status(500).json({
+        message: "Blog is not found",
+      });
+    }
+
+    if (!blog.totalSaves.includes(user)) {
+      await Blog.findByIdAndUpdate(id, { $set: { totalSaves: user } });
+      await User.findByIdAndUpdate(user, { $set: { saveBlogs: id } });
+      return res.status(200).json({
+        success: true,
+        message: "Blog has been saved",
+        isLiked: true,
+      });
+    } else {
+      await Blog.findByIdAndUpdate(id, { $unset: { totalSaves: user } });
+      await User.findByIdAndUpdate(user, { $unset: { saveBlogs: id } });
+      return res.status(200).json({
+        success: true,
+        message: "Blog Unsaved",
+        isLiked: false,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
+module.exports = {createBlog,getAllBlog,getBlogById,updateBlog,deleteBlog,likeBlog,addComment,deleteComment,saveBlog}

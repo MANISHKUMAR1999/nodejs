@@ -44,7 +44,13 @@ const blogSchema = new mongoose.Schema({
     comments:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Comment"
-    }]
+    }],
+    totalSaves: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
 },{timestamps:true})
 
 const Blog = mongoose.model('Blog',blogSchema)

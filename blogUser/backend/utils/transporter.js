@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-      user: "", // emaul domain from where u want to trigger the email
+      user: process.env.EMAIL_USER, // emaul domain from where u want to trigger the email
       pass: "", // password of your app passcode
     },
 })

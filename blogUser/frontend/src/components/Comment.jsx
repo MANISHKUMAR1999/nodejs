@@ -16,6 +16,7 @@ export const Comment = () => {
 
   console.log(comment, "hello");
   const { _id: blogId, comments,creator: { _id: creatorId } } = useSelector((state) => state.selectedBlog);
+  
   const { token, id: userId } = useSelector((state) => state.user);
 
   async function handleComment() {
