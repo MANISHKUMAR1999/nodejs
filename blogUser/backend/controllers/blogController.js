@@ -175,7 +175,7 @@ async function getBlogById(req,res){
         })
         .populate({
           path: "creator",
-          select: "name email followers",
+          select: "name email followers username",
         })
         .lean();
        

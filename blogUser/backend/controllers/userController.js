@@ -318,13 +318,17 @@ async function getUserById(req,res){
   try{
 // db calls
 //const user = users.filter((user)=>user.id == req.params.id)
-const id = req.params.id
-console.log(id)
+const username = req.params.username
+
 //const user = {}
-const user  = await User.findById(id)
+const user  = await User.findOne({username}).populate("blogs following likeBlogs saveBlogs")
+.populate({
+  path: "followers following",
+  select: "name username",
+})
+.select("-password -verify -__v -email -googleAuth");
 //const user  = await User.findOne({name:'mANIHS'}) // TAKE AS a parameter
 
-console.log(user)
 
 if(!user){
   return res.status(404).json({"sucess":"false","message":"user not found",user})

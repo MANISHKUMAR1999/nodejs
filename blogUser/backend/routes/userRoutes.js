@@ -14,7 +14,7 @@ routes.post('/signin',login)
 routes.get('/users',getAllUser)
 
 
-routes.get('/users/:id',getUserById)
+routes.get('/users/:username',getUserById)
 
 routes.patch('/users/:id',updateUser)
 

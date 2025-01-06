@@ -6,6 +6,7 @@ import { Home } from "./components/Home";
 import { AddBlog } from "./pages/AddBlog";
 import { BlogPage } from "./pages/BlogPage";
 import { VerifyUser } from "./components/VerifyUser";
+import { ProfilePage } from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/blog/:id" element={<BlogPage/>}></Route>
           <Route path="/edit/:id" element={<AddBlog/>}></Route>
           <Route path="/verify-email/:verificationToken" element={<VerifyUser/>}></Route>
+          <Route path="/:username" element={<ProfilePage/>}></Route>
           </Route>
       </Routes>
     </div>

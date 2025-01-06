@@ -137,6 +137,7 @@ export const BlogPage = () => {
             {blogData.title}
           </h1>
           <div className="flex items-center my-5 gap-3">
+            <Link to={`/@${blogData.creator&&blogData.creator.username}`}>
             <div>
               {
                blogData.creator && <div className="w-10 h-10 cursor-pointer">
@@ -153,11 +154,16 @@ export const BlogPage = () => {
               }
               
             </div>
+            </Link >
+            
             <div className="flex flex-col">
               <div className="flex items-center gap-1 ">
+                <Link to={`/@${blogData.creator && blogData.creator.username}`}>
                 <h2 className="text-xl hover:underline cursor-pointer">
                   {blogData.creator && blogData.creator.name}
                 </h2>
+                </Link>
+                
                 .
                 <p
                   onClick={() =>
