@@ -381,6 +381,45 @@ async function deleteUser(req,res){
 
 }
 
+async function followUser(req,res){
+  try {
+    const followerId = req.user;
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(500).json({
+        message: "User is not found",
+      });
+    }
+
+    console.log("hello user")
+
+    if (!user.followers.includes(followerId)) {
+      await User.findByIdAndUpdate(id, { $set: { followers: followerId } });
+      await User.findByIdAndUpdate(followerId, { $set: { following: id } });
+      return res.status(200).json({
+        success: true,
+        message: "Follow",
+       
+      });
+    } else {
+      await User.findByIdAndUpdate(id, { $unset: { followers: followerId } });
+      await User.findByIdAndUpdate(followerId, { $unset: { following: id } });
+      return res.status(200).json({
+        success: true,
+        message: "Unfollow",
+        isLiked: false,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
 
 
 async function googleAuth(req, res) {
@@ -447,7 +486,7 @@ async function googleAuth(req, res) {
    // console.log(error)
     return res.status(500).json({
       success: false,
-      message: "Please try again",
+      message: "Please try again with google",
       error: error.message,
     });
   }
@@ -455,4 +494,4 @@ async function googleAuth(req, res) {
 
 
 
-module.exports = {createUser, getAllUser,getUserById,updateUser,deleteUser,login,verifyEmail,googleAuth}
+module.exports = {createUser, getAllUser,getUserById,updateUser,deleteUser,login,verifyEmail,googleAuth,followUser}
