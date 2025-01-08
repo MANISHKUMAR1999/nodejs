@@ -178,7 +178,10 @@ async function login(req,res) {
     }
     //users.push({...req.body,id:users.length+1})
   
-  const checkForExistingUser = await User.findOne({email})
+  const checkForExistingUser = await User.findOne({email}).select(
+    "password verify name email profilePic username bio showLikedBlogs showSavedBlogs followers following googleAuth"
+  );
+
 
   if (!checkForExistingUser) {
     return res.status(400).json({
@@ -429,6 +432,7 @@ async function followUser(req,res){
 async function googleAuth(req, res) {
   try {
     const { accessToken } = req.body;
+    console.log(accessToken,"token")
 
     const response = await getAuth().verifyIdToken(accessToken);
     console.log(response)
@@ -440,6 +444,7 @@ async function googleAuth(req, res) {
     if (user) {
       // already registered
       if (user.googleAuth) {
+        console.log("true")
         let token = await generateJWT({
           email: user.email,
           id: user._id,
