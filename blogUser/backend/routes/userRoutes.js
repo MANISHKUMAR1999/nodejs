@@ -3,6 +3,7 @@ const express = require('express');
 
 const {createUser,getAllUser,getUserById,updateUser,deleteUser, login,verifyEmail,googleAuth,followUser} = require('../controllers/userController');
 const verifyUser = require('../middlewares/auth');
+const upload = require('../utils/multer');
 
 const routes = express.Router();
 
@@ -16,7 +17,7 @@ routes.get('/users',getAllUser)
 
 routes.get('/users/:username',getUserById)
 
-routes.patch('/users/:id',updateUser)
+routes.patch('/users/:id',upload.single("profilePic"),updateUser)
 
 routes.delete('/users/:id',deleteUser)
 

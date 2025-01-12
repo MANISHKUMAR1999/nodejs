@@ -294,10 +294,10 @@ let token = await generateJWT({
 
 
   
-
+console.log("username",checkForExistingUser.username)
   
   
-    return res.status(200).json({"sucess":"true","message":"logged in successfully","user":{name:checkForExistingUser.name,email:checkForExistingUser.email,id:checkForExistingUser._id,token:token}})
+    return res.status(200).json({"sucess":"true","message":"logged in successfully","user":{name:checkForExistingUser.name,email:checkForExistingUser.email,id:checkForExistingUser._id,token:token,username:checkForExistingUser.username,bio: checkForExistingUser.bio,}})
   }
   catch(err){
       return res.status(500).json({"sucess":"false","message":"please try again","error":err.message})
@@ -346,22 +346,45 @@ return res.status(200).json({"sucess":"true","message":"user fetched successfull
 
 async function updateUser(req,res){
   try{
-
- 
   const id = req.params.id;
-  const {name,password,email} = req.body
-  console.log(id)
-  const updatedUsers = await User.findByIdAndUpdate(id,{name,password,email},{new:true})
-  console.log(updatedUsers)
+  const { name, username, bio } = req.body;
+    const image = req.file;
+
+    const user = await User.findById(id);
+
+    if (user.username !== username) {
+      const findUser = await User.findOne({ username });
+
+      if (findUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Username already taken",
+        });
+      }
+    }
+    user.username = username
+    user.bio = bio;
+    user.name = name;
+
+    await user.save();
+
+  // validation
+  //const updatedUsers = await User.findByIdAndUpdate(id,{name,password,email},{new:true})
+  //console.log(updatedUsers)
   // const index = blogs.findIndex((blog)=>blog.id == id)
   // blogs[index] = {...blogs[index],...req.body}
   //console.log(blogs)
   //const updatedUsers = users.map((blog,index)=>blog.id == id ? ({...users[index],...req.body}): blog)
   //users = [...updatedUsers]
-  if(!updatedUsers){
-      return res.status(404).json({"sucess":"false","message":"user not found",updatedUsers})
-  }
-  return res.json({"message":"users updated successfully",updatedUsers})
+  // if(!updatedUsers){
+  //     return res.status(404).json({"sucess":"false","message":"user not found",updatedUsers})
+  // }
+  return res.json({"message":"users updated successfully", user: {
+    name: user.name,
+    profilePic: user.profilePic,
+    bio: user.bio,
+    username: user.username,
+  },})
 }
 catch(error){
   return res.status(500).json({"sucess":"false","message":"please try again"})

@@ -7,6 +7,8 @@ import { AddBlog } from "./pages/AddBlog";
 import { BlogPage } from "./pages/BlogPage";
 import { VerifyUser } from "./components/VerifyUser";
 import { ProfilePage } from "./pages/ProfilePage";
+import EditProfile from "./pages/EditProfile";
+
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
           <Route path="/edit/:id" element={<AddBlog/>}></Route>
           <Route path="/verify-email/:verificationToken" element={<VerifyUser/>}></Route>
           <Route path="/:username" element={<ProfilePage/>}></Route>
+          <Route path="/edit-profile" element={<EditProfile/>}></Route>
           </Route>
       </Routes>
     </div>

@@ -107,7 +107,7 @@ export const ProfilePage = () => {
     
                   {userId === userData._id ? (
                     <button className="bg-green-600 px-7 py-3 rounded-full text-white my-3">
-                      Edit Profile
+                        <Link to="/edit-profile">Edit Profile</Link>
                     </button>
                   ) : (
                     <button
