@@ -7,6 +7,7 @@ const  transporter  = require('../utils/transporter')
 const admin = require("firebase-admin");
 const {getAuth} = require("firebase-admin/auth")
 const ShortUniqueId = require("short-unique-id");
+const { uploadImageToCloudinary, deleteImagefromCloudinary } = require('../utils/uploadImage')
 const { randomUUID } = new ShortUniqueId({ length: 5 });
 
 
@@ -351,6 +352,23 @@ async function updateUser(req,res){
     const image = req.file;
 
     const user = await User.findById(id);
+
+    if (!req.body.profilePic) {
+      if (user.profilePicId) {
+        await deleteImagefromCloudinary(user.profilePicId);
+      }
+      user.profilePic = null;
+      user.profilePicId = null;
+    }
+
+    if (image) {
+      const { secure_url, public_id } = await uploadImageToCloudinary(
+        `data:image/jpeg;base64,${image.buffer.toString("base64")}`
+      );
+
+      user.profilePic = secure_url;
+      user.profilePicId = public_id;
+    }
 
     if (user.username !== username) {
       const findUser = await User.findOne({ username });

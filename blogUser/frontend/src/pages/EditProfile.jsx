@@ -33,6 +33,7 @@ const EditProfile = () => {
 
   async function handleUpdateProfile() {
     //console.log(userData)
+    setIsButtonDisabled(true);
     const formData = new FormData();
     formData.append("name", userData.name);
     formData.append("username", userData.username);
@@ -75,6 +76,7 @@ const EditProfile = () => {
       <div>
         <div className="">
           <h2 className="text-2xl font-semibold my-2">Photo</h2>
+          <div className="flex items-center flex-col gap-3">
           <label htmlFor="image" className=" ">
             {userData?.profilePic ? (
               <img
@@ -92,6 +94,20 @@ const EditProfile = () => {
               </div>
             )}
           </label>
+
+          <h2
+                className="text-lg text-red-500 font-medium cursor-pointer"
+                onClick={() => {
+                  setUserData((prevData) => ({
+                    ...prevData,
+                    profilePic: null,
+                  }));
+                }}
+              >
+                Remove
+              </h2>
+              </div>
+
           <input
             className="hidden"
             id="image"

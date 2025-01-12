@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../utils/userSlice';
 
 export const Navbar = () => {
-  const { token, name,username } = useSelector((state) => state.user);
+  const { token, name,username,profilePic} = useSelector((state) => state.user);
   const dispatch = useDispatch()
   const [showPopup, setShowPopup] = useState(false);
 
@@ -45,10 +45,14 @@ export const Navbar = () => {
         {token ? (
           <div className="h-10 w-10 cursor-pointer" onClick={()=>setShowPopup(prev=>!prev)}>
           <img
-            src={`https://api.dicebear.com/9.x/initials/svg?seed=${name}`}
-            alt=""
-            className="rounded-full "
-          />
+                src={
+                  profilePic
+                    ? profilePic
+                    : `https://api.dicebear.com/9.x/initials/svg?seed=${name}`
+                }
+                alt=""
+                className="rounded-full w-full h-full object-contain"
+              />
         </div>
         ) : (
           <div className=" flex gap-2">
@@ -66,10 +70,13 @@ export const Navbar = () => {
         )}
       </div>
       {
-        showPopup ? (<div className='w-[150px]  bg-gray-200 absolute right-2 rounded-xl top-14 drop-shadow-md'>
+        showPopup ? (<div onMouseLeave={() => setShowPopup(false)} className='w-[150px]  bg-gray-200 absolute right-2 rounded-xl top-14 drop-shadow-md'>
          <Link to={`@${username}`}>
          <p className="popup rounded-t-xl">Profile</p>
          </Link>
+         <Link to={`/edit-profile`}>
+              <p className="popup ">Edit Profile</p>
+            </Link>
                 <p className="popup">Setting</p>
                 <p className="popup rounded-b-xl" onClick={handleLogout}>
                   Logout

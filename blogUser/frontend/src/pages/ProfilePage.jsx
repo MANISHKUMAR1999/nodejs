@@ -9,6 +9,8 @@ export const ProfilePage = () => {
     const [userData,setUserData] = useState(null)
     const { token, id: userId } = useSelector((state) => state.user);
 
+   
+
     useEffect(() => {
         async function fetchUserDetails() {
           try {

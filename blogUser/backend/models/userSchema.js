@@ -43,6 +43,10 @@ googleAuth: {
     type: String,
     default: null,
   },
+  profilePicId: {
+    type: String,
+    default: null,
+  },
   bio:{
     type:String,
   },
